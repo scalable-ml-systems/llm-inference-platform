@@ -1,0 +1,7 @@
+grafana:
+  defaultDashboardsEnabled: true
+  service:
+    type: ClusterIP
+prometheus:
+  service:
+    type: ClusterIP
