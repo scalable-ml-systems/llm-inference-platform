@@ -32,6 +32,8 @@ module "iam" {
 
   env         = var.env
   project     = var.project_name
+  oidc_provider_arn = var.oidc_provider_arn
+  oidc_provider_url = var.oidc_provider_url
   common_tags = local.common_tags
 }
 
@@ -101,6 +103,7 @@ module "autoscaling" {
   env          = var.env
   project      = var.project_name
   cluster_name = module.eks.cluster_name
+  cluster_autoscaler_role_arn = module.iam.cluster_autoscaler_role_arn
   common_tags  = local.common_tags
 }
 

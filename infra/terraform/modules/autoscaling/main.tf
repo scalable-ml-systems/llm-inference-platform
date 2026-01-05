@@ -1,41 +1,18 @@
 ########################################################
-# Autoscaling: Cluster Autoscaler IRSA & policy stub
+# Autoscaling: placeholder using IRSA role
 ########################################################
 
 locals {
   name_prefix = "${var.project}-${var.env}"
 }
 
-# OIDC provider is typically created in EKS/IAM modules.
-# Here we assume it's already set up and passed in later if needed.
-# For now, we create just an IAM role & policy stub.
+# Later, you will add a helm_release here for cluster-autoscaler
+# using the var.cluster_autoscaler_role_arn in the serviceAccount
+# annotation: eks.amazonaws.com/role-arn
 
-resource "aws_iam_role" "cluster_autoscaler" {
-  name = "${local.name_prefix}-cluster-autoscaler-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      }
-      Action = "sts:AssumeRole"
-    }]
-  })
-
-  tags = var.common_tags
+resource "null_resource" "autoscaling_stub" {
+  triggers = {
+    cluster_name              = var.cluster_name
+    cluster_autoscaler_role   = var.cluster_autoscaler_role_arn
+  }
 }
-
-# Minimal autoscaler policy – replace with real autoscaling.json later
-resource "aws_iam_policy" "cluster_autoscaler_policy" {
-  name   = "${local.name_prefix}-cluster-autoscaler-policy"
-  policy = file("${path.module}/policies/gpu-scaling.json")
-}
-
-resource "aws_iam_role_policy_attachment" "cluster_autoscaler_attach" {
-  role       = aws_iam_role.cluster_autoscaler.name
-  policy_arn = aws_iam_policy.cluster_autoscaler_policy.arn
-}
-
-# Placeholder for queue-based-scaling later (router-aware)

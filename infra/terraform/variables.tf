@@ -36,3 +36,13 @@ variable "github_repo" {
   description = "GitHub repository for CI/CD OIDC binding (org/repo)"
   default     = "your-org/your-repo"
 }
+
+variable "oidc_provider_arn" {
+  type        = string
+  description = "ARN of the EKS cluster OIDC provider (for IRSA)"
+}
+
+variable "oidc_provider_url" {
+  type        = string
+  description = "Issuer URL host of the OIDC provider (without https://)"
+}
