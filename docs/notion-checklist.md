@@ -1,29 +1,43 @@
-vLLM Inference Platform — Notion Checklist
-Week 1 — Phase 0 & Phase 1: Base Cluster + Single‑Node Backend
-Terraform Tasks (Infra Setup)
-[ ] Terraform AWS provider setup (provider.tf)
+# vLLM Inference Platform — Notion Checklist
 
-[ ] VPC + Subnets + Security Groups
+## Week 1 — Phase 0 & Phase 1: Base Cluster + Single‑Node Backend
 
-[ ] EKS cluster with GPU node group (EC2 P4/P5)
+### Terraform Tasks (Infra Setup)
+[x] Terraform AWS provider setup (provider.tf)
+[x] VPC + Subnets + Security Groups
+[x] EKS cluster with GPU node group (EC2 P4/P5)
+[x] IAM roles / service accounts for cluster & nodes
+[x] S3 bucket for models
+[x] FSx for Lustre caching
 
-[ ] IAM roles / service accounts for cluster & nodes
+### Helm Tasks
+[ ] Prometheus + Grafana + Loki
+- Install via helm_release in modules/observability/
+- Wire Grafana dashboards (vllm-metrics.json, gpu-utilization.json, cost-tracking.json)
+- IRSA role for Prometheus (prometheus_irsa_role_arn)
 
-[ ] S3 bucket for models
+[ ] DCGM exporter
+- Install via Helm in gpu-metrics namespace
+- Exposes GPU utilization, memory, temperature metrics
+- Scraped by Prometheus
 
-[ ] FSx for Lustre caching
+👉 Once this is done, you’ll have full observability: GPU utilization, latency, throughput, and cost dashboards.
 
-Helm Tasks
-[ ] Install Prometheus + Grafana + Loki
-
-[ ] Install DCGM exporter for GPU metrics
-
-vLLM Deployment
+### vLLM Deployment
 [ ] Single‑GPU vLLM deployment via Helm chart
+- Helm chart in vllm/ namespace
+- ServiceAccount annotated with IRSA (vllm_irsa_role_arn)
+- Pull models from S3, cache hot models in FSx
 
 [ ] FastAPI / gRPC endpoint setup
+- Expose via ALB ingress (from networking/ module)
+- gRPC for high‑throughput inference, FastAPI for REST
 
 [ ] Request batching + warm‑up logic
+- Configure vLLM’s --enable-batching
+- Warm‑up models on startup to avoid cold latency
+
+👉 This phase delivers a production‑ready inference endpoint.
 
 Deliverables / Artifacts
 [ ] Latency report (p50/p95/p99)
