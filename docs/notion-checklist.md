@@ -128,3 +128,6 @@ Deliverables / Artifacts
 
 LinkedIn / Blog Prompt
 [ ] “Optimizing vLLM inference for resilience, observability, and GPU cost efficiency”
+
+
+### Semantic Intelligent Router for Models 
