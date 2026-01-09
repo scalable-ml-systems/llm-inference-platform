@@ -1,0 +1,7 @@
+{
+  "title": "Cost Tracking",
+  "panels": [
+    { "title": "Cost per Token ($)", "type": "stat" },
+    { "title": "GPU-Hour Cost ($)", "type": "graph" }
+  ]
+}

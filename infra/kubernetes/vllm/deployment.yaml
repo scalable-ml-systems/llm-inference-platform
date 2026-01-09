@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-sandbox
+  labels:
+    app: vllm-sandbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-sandbox
+  template:
+    metadata:
+      labels:
+        app: vllm-sandbox
+    spec:
+      containers:
+        # Fast Tier: Qwen-1.5B AWQ
+        - name: vllm-qwen
+          image: vllm/vllm-openai:latest
+          args:
+            - "--model"
+            - "Qwen/Qwen2.5-1.5B-Instruct-AWQ"
+            - "--gpu-memory-utilization"
+            - "0.3"                # reserved ~30% VRAM
+            - "--enable-prefix-caching"
+            - "--port"
+            - "8000"
+          ports:
+            - containerPort: 8000
+
+        # Reasoning Tier: Llama-3.2-3B AWQ
+        - name: vllm-llama
+          image: vllm/vllm-openai:latest
+          args:
+            - "--model"
+            - "hugging-quants/Llama-3.2-3B-Instruct-AWQ"
+            - "--gpu-memory-utilization"
+            - "0.45"               # reserved ~45% VRAM
+            - "--enable-prefix-caching"
+            - "--port"
+            - "8001"
+          ports:
+            - containerPort: 8001

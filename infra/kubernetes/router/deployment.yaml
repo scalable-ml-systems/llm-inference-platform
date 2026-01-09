@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: router
+  namespace: router
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: router
+  template:
+    metadata:
+      labels:
+        app: router
+    spec:
+      serviceAccountName: router-sa
+      containers:
+        - name: router
+          image: <your ECR repo URL>/router:latest
+          ports:
+            - containerPort: 9090
+          env:
+            - name: VLLM_ENDPOINT
+              value: "http://vllm-service.vllm.svc.cluster.local:8080"
+            - name: ROUTING_MODE
+              value: "shadow"

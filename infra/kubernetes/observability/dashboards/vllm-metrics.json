@@ -1,0 +1,7 @@
+{
+  "title": "vLLM Metrics",
+  "panels": [
+    { "title": "Latency (ms)", "type": "graph" },
+    { "title": "Throughput (req/s)", "type": "graph" }
+  ]
+}

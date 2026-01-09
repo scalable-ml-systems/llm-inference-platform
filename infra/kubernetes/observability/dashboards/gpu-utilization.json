@@ -1,0 +1,7 @@
+{
+  "title": "GPU Utilization",
+  "panels": [
+    { "title": "GPU Usage (%)", "type": "graph" },
+    { "title": "Memory Usage (GiB)", "type": "graph" }
+  ]
+}

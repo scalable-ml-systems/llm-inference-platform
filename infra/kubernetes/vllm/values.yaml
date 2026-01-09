@@ -1,0 +1,45 @@
+replicaCount: 1
+
+image:
+  repository: <your ECR repo URL>/vllm
+  tag: latest
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name: vllm-sa
+  annotations:
+    eks.amazonaws.com/role-arn: ${VLLM_IRSA_ROLE_ARN}
+
+resources:
+  limits:
+    nvidia.com/gpu: 1
+    cpu: "8"
+    memory: "64Gi"
+  requests:
+    nvidia.com/gpu: 1
+    cpu: "4"
+    memory: "32Gi"
+
+args:
+  - "--model"
+  - "s3://vllm-platform-${ENV}-models/llama-2-7b"
+  - "--enable-batching"
+  - "--max-num-batched-tokens=2048"
+  - "--gpu-memory-utilization=0.9"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+  hosts:
+    - host: vllm.${ENV}.example.com
+      paths:
+        - path: /
+          pathType: Prefix

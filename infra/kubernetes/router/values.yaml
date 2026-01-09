@@ -1,0 +1,34 @@
+replicaCount: 2
+
+image:
+  repository: <your ECR repo URL>/router
+  tag: latest
+
+serviceAccount:
+  create: true
+  name: router-sa
+  annotations:
+    eks.amazonaws.com/role-arn: ${ROUTER_IRSA_ROLE_ARN}
+
+env:
+  - name: VLLM_ENDPOINT
+    value: "http://vllm-service.vllm.svc.cluster.local:8080"
+  - name: ROUTING_MODE
+    value: "shadow"
+  - name: COST_METRICS_BUCKET
+    value: "vllm-platform-${ENV}-cost-metrics"
+
+service:
+  type: ClusterIP
+  port: 9090
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+  hosts:
+    - host: router.${ENV}.example.com
+      paths:
+        - path: /
+          pathType: Prefix
