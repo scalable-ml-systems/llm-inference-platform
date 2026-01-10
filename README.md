@@ -1,112 +1,190 @@
-# LLM Inference Platform - 
+# LLM Multi-Tier Inference Platform
 
-## UNDER ACTIVE BUILD
+**🚧 Status: Active Development (Week 2)**
 
-This repository contains a production-oriented LLM inference platform designed to serve large language models with explicit guarantees around performance, cost, observability, and safety.
+A learning project building production-grade LLM inference patterns on AWS EKS. 
+This repository demonstrates infrastructure-as-code approaches to multi-model 
+serving, intelligent routing, and GPU optimization.
 
-<img width="800" height="800" alt="vllm-inference-platform-complete" src="https://github.com/user-attachments/assets/110f2d8c-2a21-4977-bc62-0795161ee41d" />
+> **Note:** This is genuine "building in public" - the system is being actively 
+> developed and not yet production-ready. Expect evolving architecture and 
+> incomplete features.
 
+## Motivation
 
-The platform focuses on runtime inference concerns:
-- multi-model serving
-- intelligent request routing
-- GPU-efficient batching and concurrency
-- AI-specific observability (latency, tokens/sec, GPU utilization)
-- cost-per-token visibility
-- evaluation and safety guardrails
+This project explores how LLMs are operated in production environments, focusing on:
+- Cost-effective multi-model serving strategies
+- Intelligent request routing based on complexity
+- GPU-efficient batching and memory management
+- Production observability (latency, tokens/sec, GPU metrics)
+- Infrastructure-as-code patterns for ML systems
 
-This system intentionally does NOT cover model training or large-scale fine-tuning.
-The goal is to model how LLMs are actually operated in production environments.
+**Scope:** Runtime inference infrastructure (not training or fine-tuning)
 
-Initial deployment targets AWS EKS with GPU-backed nodes.
+**Target Platform:** AWS EKS with GPU nodes (g4dn.xlarge instances)
 
-## ACTIVE BUILD : 
+## Current Status
 
-Repo Structure
+### ✅ Completed
+- Infrastructure-as-code (Terraform modules for VPC, EKS, IAM, storage)
+- Kubernetes manifests for vLLM and router services
+- Router service framework (FastAPI with metrics)
+- Observability configuration (Prometheus, Grafana, Loki, DCGM)
+- Project structure and documentation
 
+### 🚧 In Progress (This Week)
+- Deploying infrastructure to AWS
+- Testing vLLM deployment with actual models (Qwen 1.5B, LLaMA 3.2-3B)
+- Implementing routing logic (currently heuristic-based)
+- Validating end-to-end request flow
+- Benchmarking and optimization
+
+### ⚪ Planned (Next Phases)
+- Semantic classifier (replacing current heuristic stub)
+- Load testing and performance tuning
+- Multi-tier caching optimization
+- Production security hardening
+- Cost tracking and optimization
+- Comprehensive testing suite
+
+## Architecture Overview
+
+**Target Architecture:**
+- **Router Service:** FastAPI-based request router with context affinity
+- **vLLM Instances:** Two-tier deployment (fast + reasoning models)
+- **Infrastructure:** AWS EKS with GPU nodes, FSx storage, managed observability
+- **Monitoring:** Prometheus + Grafana for inference metrics, DCGM for GPU monitoring
+
+**Current Models (Target):**
+- Fast Tier: Qwen 1.5B (~3GB, <100ms target latency)
+- Reasoning Tier: LLaMA 3.2-3B (~6GB, <500ms target latency)
+
+**Infrastructure (Target):**
+- 2x g4dn.xlarge nodes (T4 GPUs, 16GB VRAM each)
+- Estimated cost: ~$1/hour (~$720/month)
+
+See [docs/architecture.md](docs/architecture.md) for detailed design.
+
+## Repository Structure
 ```
-
 llm-inference-platform/
-├── services/
-│   ├── router/
-│   │   ├── app.py                # FastAPI router service (entry point, routing logic)
-│   │   ├── metrics.py            # Prometheus metrics: cost per token, routing distribution, latency
-│   │   ├── context_registry.py   # Redis KV registry for context affinity (session/prefix mapping)
-│   │   ├── semantic_classifier.py# Stub for easy/hard prompt detection (Mistral vs Llama routing)
-│   │   ├── requirements.txt      # Python dependencies for router service
-│   │   └── Dockerfile            # Container build for router
-│   │
-│   └── vllm/
-│       ├── config.yaml           # vLLM runtime configs (batching, cache tuning, offload settings)
-│       ├── metrics_exporter.py   # Prometheus exporter: KV cache hits/misses, batching stats, OOM events
-│       ├── warmup.py             # Model warm-up logic (cold start latency tracking)
-│       ├── requirements.txt      # Python dependencies for vLLM service
-│       └── Dockerfile            # Container build for vLLM
-│
-├── infra/
-│   ├── terraform/                # Infrastructure as code (AWS, EKS, IAM, FSx, S3, etc.)
-│   │   ├── provider.tf
-│   │   ├── versions.tf
-│   │   ├── backend.tf
-│   │   ├── variables.tf
-│   │   ├── outputs.tf
-│   │   ├── main.tf
-│   │   ├── terraform.tfvars
-│   │   └── modules/
-│   │       ├── vpc/              # Networking
-│   │       ├── security/         # Security groups, IAM policies
-│   │       ├── iam/              # IRSA roles for router/vLLM
-│   │       ├── eks/              # EKS cluster setup
-│   │       ├── storage/          # FSx + S3 buckets
-│   │       ├── ecr/              # Container registry
-│   │       ├── kms/              # Encryption keys
-│   │       ├── cicd/             # CI/CD pipelines
-│   │       ├── observability/    # Terraform-managed observability (optional)
-│   │       ├── autoscaling/      # GPU autoscaling policies
-│   │       ├── cost-management/  # Cost dashboards + budgets
-│   │       ├── networking/       # ALB, NLB configs
-│   │       ├── secrets/          # Secret management
-│   │       ├── disaster-recovery/# Backup + restore
-│   │       └── testing/          # Infra validation
-│   │
-│   └── kubernetes/               # K8s manifests + Helm values
-│       ├── vllm/
-│       │   ├── values.yaml       # Helm values for vLLM deployment
-│       │   ├── deployment.yaml   # vLLM Deployment manifest
-│       │   ├── service.yaml      # vLLM Service manifest
-│       │   └── ingress.yaml      # vLLM Ingress manifest
-│       ├── router/
-│       │   ├── values.yaml       # Helm values for router deployment
-│       │   ├── deployment.yaml   # Router Deployment manifest
-│       │   ├── service.yaml      # Router Service manifest
-│       │   └── ingress.yaml      # Router Ingress manifest
-│       └── observability/
-│           ├── values/
-│           │   ├── kube-prometheus-stack-values.yaml
-│           │   ├── loki-values.yaml
-│           │   └── dcgm-values.yaml
-│           └── dashboards/
-│               ├── vllm-metrics.json        # Latency, throughput, batching efficiency
-│               ├── gpu-utilization.json     # GPU usage, memory, temperature
-│               └── cost-tracking.json       # Cost per token, GPU-hour cost
-│
-├── tests/
-│   ├── unit/
-│   │   ├── test_router_metrics.py           # Validates router Prometheus counters
-│   │   └── test_vllm_metrics.py             # Validates vLLM exporter metrics
-│   ├── integration/
-│   │   └── test_end_to_end.py               # End-to-end smoke tests across router + vLLM
-│   └── load/
-│       └── locustfile.py                    # Load tests for batching efficiency
-│
-├── benchmarks/
-│   ├── router_benchmark.py                  # Benchmark routing decisions
-│   └── results/                             # Store benchmark outputs
-│
-├── docs/
-│   └── ARCHITECTURE.md                      # System architecture overview
-│
-└── scripts/
-    └── deploy.sh                            # One-click deploy (Terraform + Helm)
-
+├── services/          # Application code
+│   ├── router/        # Request routing service (FastAPI)
+│   └── vllm/          # vLLM metrics and configuration
+├── infra/             # Infrastructure-as-code
+│   ├── terraform/     # AWS infrastructure (EKS, VPC, IAM, etc.)
+│   └── kubernetes/    # K8s manifests and Helm values
+├── tests/             # Testing framework (WIP)
+├── benchmarks/        # Performance benchmarks (WIP)
+├── docs/              # Architecture and setup documentation
+└── scripts/           # Deployment automation
 ```
+
+## Quick Start
+
+> ⚠️ **Note:** This is under active development. Deployment steps are being validated.
+
+### Prerequisites
+- AWS account with appropriate permissions
+- `terraform` >= 1.0
+- `kubectl` configured for EKS
+- `helm` >= 3.0
+
+### Deploy Infrastructure
+```bash
+# Initialize Terraform
+cd infra/terraform
+terraform init
+terraform plan
+terraform apply
+
+# Deploy services
+cd ../kubernetes
+kubectl apply -f vllm/
+kubectl apply -f router/
+kubectl apply -f observability/
+```
+
+See [docs/setup/setup.md](docs/setup/setup.md) for detailed instructions.
+
+## Development Progress
+
+**Week 1 (Jan 1-7):**
+- ✅ Repository structure and IaC setup
+- ✅ Terraform modules for AWS infrastructure
+- ✅ K8s manifests for services
+- ✅ Router service skeleton
+
+**Week 2 (Jan 8-14) - Current:**
+- 🚧 Infrastructure deployment to AWS
+- 🚧 vLLM model deployment testing
+- 🚧 End-to-end request validation
+- 🚧 Initial benchmarking
+
+## Technical Highlights
+
+**Infrastructure-as-Code:**
+- Modular Terraform for AWS (VPC, EKS, IAM, storage, security)
+- Separate environments (dev/staging/prod)
+- GitOps-ready Kubernetes manifests
+
+**Router Design:**
+- FastAPI service with Prometheus metrics
+- Context affinity via Redis (planned)
+- Pluggable routing logic (currently heuristic-based)
+
+**Observability:**
+- Prometheus + Grafana stack
+- DCGM for GPU metrics
+- Loki for log aggregation
+- Custom dashboards for inference metrics
+
+**Key Learnings So Far:**
+- Model loading is I/O bound (FSx/EBS selection critical)
+- GPU memory management requires careful tuning
+- vLLM's PagedAttention significantly improves efficiency
+- Infrastructure complexity is 80% of the work
+
+## Important Disclaimers
+
+⚠️ **This is a learning project, not production-ready**
+- Security hardening incomplete (no auth/authz yet)
+- Testing coverage minimal
+- Performance not yet validated at scale
+- Configurations may change frequently
+
+⚠️ **Current Limitations:**
+- Single-region deployment only
+- Basic routing heuristics (semantic classifier is stub)
+- No multi-tenancy support
+- Minimal error handling
+- Cost tracking not fully implemented
+
+⚠️ **Building in Public:**
+- You'll see experiments and iterations
+- Expect TODO comments and rough edges
+- Architecture decisions may change based on learnings
+
+## Contributing
+
+This is primarily a personal learning project. However:
+- Issues/questions are welcome
+- Suggestions appreciated
+- Feel free to fork and adapt for your use case
+
+## Resources & References
+
+- [vLLM Documentation](https://docs.vllm.ai/)
+- [AWS EKS Best Practices](https://aws.github.io/aws-eks-best-practices/)
+- [Designing ML Systems (Chip Huyen)](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+## License
+
+Apache 2.0 - See [LICENSE](LICENSE)
+
+---
+
+**Building honestly. Learning publicly.**
+
+*Last updated: January 10, 2025*
+*Project started: January 3, 2025*
