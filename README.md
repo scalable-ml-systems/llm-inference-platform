@@ -1,18 +1,11 @@
-# LLM Multi-Tier Inference Platform
+## LLM Multi-Tier Inference Platform
 
-**🚧 Status: Active Development (Week 2)**
+**Status: Active Development**
 
-A learning project building production-grade LLM inference patterns on AWS EKS. 
-This repository demonstrates infrastructure-as-code approaches to multi-model 
-serving, intelligent routing, and GPU optimization.
+A hands-on learning project exploring production-style LLM inference infrastructure patterns on AWS EKS.
 
-> **Note:** This is genuine "building in public" - the system is being actively 
-> developed and not yet production-ready. Expect evolving architecture and 
-> incomplete features.
+This repository focuses on how modern LLM inference systems are **designed, operated, and constrained** in real environments — with an emphasis on infrastructure-as-code, routing patterns, and GPU memory management.
 
-## Motivation
-
-This project explores how LLMs are operated in production environments, focusing on:
 - Cost-effective multi-model serving strategies
 - Intelligent request routing based on complexity
 - GPU-efficient batching and memory management
@@ -32,7 +25,7 @@ This project explores how LLMs are operated in production environments, focusing
 - Observability configuration (Prometheus, Grafana, Loki, DCGM)
 - Project structure and documentation
 
-### 🚧 In Progress (This Week)
+### 🚧 In Progress
 - Deploying infrastructure to AWS
 - Testing vLLM deployment with actual models (Qwen 1.5B, LLaMA 3.2-3B)
 - Implementing routing logic (currently heuristic-based)
@@ -55,9 +48,9 @@ This project explores how LLMs are operated in production environments, focusing
 - **Infrastructure:** AWS EKS with GPU nodes, FSx storage, managed observability
 - **Monitoring:** Prometheus + Grafana for inference metrics, DCGM for GPU monitoring
 
-**Current Models (Target):**
-- Fast Tier: Qwen 1.5B (~3GB, <100ms target latency)
-- Reasoning Tier: LLaMA 3.2-3B (~6GB, <500ms target latency)
+**Planned Models for Validation:**
+Fast Tier: Qwen 1.5B (~3GB, latency target under light load: <100ms)
+Reasoning Tier: LLaMA 3.2-3B (~6GB, latency target under light load: <500ms)
 
 **Infrastructure (Target):**
 - 2x g4dn.xlarge nodes (T4 GPUs, 16GB VRAM each)
@@ -90,36 +83,7 @@ llm-inference-platform/
 - `kubectl` configured for EKS
 - `helm` >= 3.0
 
-### Deploy Infrastructure
-```bash
-# Initialize Terraform
-cd infra/terraform
-terraform init
-terraform plan
-terraform apply
-
-# Deploy services
-cd ../kubernetes
-kubectl apply -f vllm/
-kubectl apply -f router/
-kubectl apply -f observability/
-```
-
 See [docs/setup/setup.md](docs/setup/setup.md) for detailed instructions.
-
-## Development Progress
-
-**Week 1 (Jan 1-7):**
-- ✅ Repository structure and IaC setup
-- ✅ Terraform modules for AWS infrastructure
-- ✅ K8s manifests for services
-- ✅ Router service skeleton
-
-**Week 2 (Jan 8-14) - Current:**
-- 🚧 Infrastructure deployment to AWS
-- 🚧 vLLM model deployment testing
-- 🚧 End-to-end request validation
-- 🚧 Initial benchmarking
 
 ## Technical Highlights
 
@@ -139,15 +103,9 @@ See [docs/setup/setup.md](docs/setup/setup.md) for detailed instructions.
 - Loki for log aggregation
 - Custom dashboards for inference metrics
 
-**Key Learnings So Far:**
-- Model loading is I/O bound (FSx/EBS selection critical)
-- GPU memory management requires careful tuning
-- vLLM's PagedAttention significantly improves efficiency
-- Infrastructure complexity is 80% of the work
+## Important Disclaimers 
 
-## Important Disclaimers
-
-⚠️ **This is a learning project, not production-ready**
+⚠️ **This repository documents an evolving design, not a finished system**
 - Security hardening incomplete (no auth/authz yet)
 - Testing coverage minimal
 - Performance not yet validated at scale
@@ -165,26 +123,16 @@ See [docs/setup/setup.md](docs/setup/setup.md) for detailed instructions.
 - Expect TODO comments and rough edges
 - Architecture decisions may change based on learnings
 
-## Contributing
-
-This is primarily a personal learning project. However:
 - Issues/questions are welcome
 - Suggestions appreciated
 - Feel free to fork and adapt for your use case
 
 ## Resources & References
-
 - [vLLM Documentation](https://docs.vllm.ai/)
 - [AWS EKS Best Practices](https://aws.github.io/aws-eks-best-practices/)
 - [Designing ML Systems (Chip Huyen)](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
 
 ## License
-
 Apache 2.0 - See [LICENSE](LICENSE)
 
 ---
-
-**Building honestly. Learning publicly.**
-
-*Last updated: January 10, 2025*
-*Project started: January 3, 2025*
