@@ -49,8 +49,8 @@ This repository focuses on how modern LLM inference systems are **designed, oper
 - **Monitoring:** Prometheus + Grafana for inference metrics, DCGM for GPU monitoring
 
 **Planned Models for Validation:**
-Fast Tier: Qwen 1.5B (~3GB, latency target under light load: <100ms)
-Reasoning Tier: LLaMA 3.2-3B (~6GB, latency target under light load: <500ms)
+- Fast Tier: Qwen 1.5B (~3GB, latency target under light load: <100ms)
+- Reasoning Tier: LLaMA 3.2-3B (~6GB, latency target under light load: <500ms)
 
 **Infrastructure (Target):**
 - 2x g4dn.xlarge nodes (T4 GPUs, 16GB VRAM each)
