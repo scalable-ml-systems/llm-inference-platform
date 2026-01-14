@@ -33,3 +33,7 @@ output "gpu_nodegroup_name" {
 output "models_bucket_name" {
   value = aws_s3_bucket.models.bucket
 }
+
+output "inference_backend_irsa_role_arn" {
+  value = aws_iam_role.inference_backend_irsa.arn
+}

@@ -1,3 +1,11 @@
+locals {
+  inference_namespace      = "inference-backend"
+  inference_serviceaccount = "inference-backend-sa"
+
+  # IAM trust policy needs the OIDC issuer host/path without the "https://"
+  oidc_provider_hostpath = replace(module.cluster_eks.oidc_issuer_url, "https://", "")
+}
+
 module "network_vpc" {
   source   = "../../modules/network-vpc"
   name     = "${var.project_name}-${var.env}"
@@ -53,6 +61,9 @@ module "nodegroup_gpu" {
   }
 }
 
+# IAM policy: S3 read-only to the models bucket
+# ==============================================
+
 resource "aws_s3_bucket" "models" {
   bucket        = var.models_bucket_name
   force_destroy = var.force_destroy_models_bucket
@@ -80,4 +91,63 @@ resource "aws_s3_bucket_public_access_block" "models" {
   ignore_public_acls      = true
   block_public_policy     = true
   restrict_public_buckets = true
+}
+
+data "aws_iam_policy_document" "models_s3_readonly" {
+  statement {
+    sid     = "ListBucket"
+    actions = ["s3:ListBucket", "s3:GetBucketLocation"]
+    resources = [
+      aws_s3_bucket.models.arn
+    ]
+  }
+
+  statement {
+    sid     = "ReadObjects"
+    actions = ["s3:GetObject"]
+    resources = [
+      "${aws_s3_bucket.models.arn}/*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "models_s3_readonly" {
+  name   = "${var.project_name}-${var.env}-models-s3-readonly"
+  policy = data.aws_iam_policy_document.models_s3_readonly.json
+}
+
+# IAM role: Kubernetes Service Account (IRSA)
+# =============================================
+data "aws_iam_policy_document" "irsa_assume_role" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    principals {
+      type        = "Federated"
+      identifiers = [module.cluster_eks.oidc_provider_arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${local.oidc_provider_hostpath}:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${local.oidc_provider_hostpath}:sub"
+      values   = ["system:serviceaccount:${local.inference_namespace}:${local.inference_serviceaccount}"]
+    }
+  }
+}
+
+resource "aws_iam_role" "inference_backend_irsa" {
+  name               = "${var.project_name}-${var.env}-inference-backend-irsa"
+  assume_role_policy = data.aws_iam_policy_document.irsa_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "inference_backend_models_access" {
+  role       = aws_iam_role.inference_backend_irsa.name
+  policy_arn  = aws_iam_policy.models_s3_readonly.arn
 }
