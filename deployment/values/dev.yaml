@@ -1,0 +1,2 @@
+irsa:
+  roleArn: "<PASTE output inference_backend_irsa_role_arn>"
