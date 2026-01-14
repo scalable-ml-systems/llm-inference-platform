@@ -1,9 +1,74 @@
+########################################
+# OS / Editor
+########################################
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+########################################
+# Python
+########################################
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*.egg-info/
 .venv/
-terraform.tfstate
-terraform.tfstate.backup
-.terraform/
-charts/**/charts/
-charts/**/tmp/
+.env
+.env.*
+
+########################################
+# Terraform - MUST IGNORE
+########################################
+# Terraform working directory
+**/.terraform/
+
+# Terraform state
+**/*.tfstate
+**/*.tfstate.*
+
+# Terraform plan files
+**/*.tfplan
+
+# Terraform lock info (optional)
+**/.terraform.lock.hcl
+
+########################################
+# Terraform variable files (SECRETS)
+########################################
+# Never commit tfvars
+**/*.tfvars
+**/*.tfvars.json
+
+# Explicitly ignore env tfvars
+infrastructure/terraform/environments/dev/terraform.tfvars
+infrastructure/terraform/environments/prod/terraform.tfvars
+
+########################################
+# Kubernetes / Helm
+########################################
+*.kubeconfig
+kubeconfig*
+*.pem
+*.key
+*.crt
+
+########################################
+# Cloud credentials (CRITICAL)
+########################################
+**/.aws/
+**/.gcp/
+**/.azure/
+
+########################################
+# Logs / Artifacts
+########################################
+logs/
+*.log
+*.out
+
+########################################
+# Local experiments / data
+########################################
+data/
+experiments/**/outputs/
