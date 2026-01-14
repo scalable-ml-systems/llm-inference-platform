@@ -1,65 +1,31 @@
-## LLM Multi-Tier Inference Platform
+# LLM Inference Platform - 
 
-**Status: Active Development**
+## UNDER ACTIVE BUILD
 
-A hands-on learning project exploring production-style LLM inference infrastructure patterns on AWS EKS.
+This repository is an applied project that explores production-grade LLM inference infrastructure patterns on AWS EKS, with a focus on performance, cost optimization, observability, and security.
 
-This repository focuses on how modern LLM inference systems are **designed, operated, and constrained** in real environments — with an emphasis on infrastructure-as-code, routing patterns, and GPU memory management.
+<img width="800" height="800" alt="vllm-inference-platform-complete" src="https://github.com/user-attachments/assets/110f2d8c-2a21-4977-bc62-0795161ee41d" />
 
-- Cost-effective multi-model serving strategies
-- Intelligent request routing based on complexity
-- GPU-efficient batching and memory management
-- Production observability (latency, tokens/sec, GPU metrics)
-- Infrastructure-as-code patterns for ML systems
 
-**Scope:** Runtime inference infrastructure (not training or fine-tuning)
+The platform focuses on runtime inference concerns:
+- multi-model serving
+- intelligent request routing
+- GPU-efficient batching and concurrency
+- AI-specific observability (latency, tokens/sec, GPU utilization)
+- cost-per-token visibility
+- evaluation and safety guardrails
 
-**Target Platform:** AWS EKS with GPU nodes (g4dn.xlarge instances)
+This system intentionally does NOT cover model training or large-scale fine-tuning.
+The goal is to model how LLMs are actually operated in production environments.
 
-## Current Status
+Initial deployment targets AWS EKS with GPU-backed nodes.
 
-### ✅ Completed
-- Infrastructure-as-code (Terraform modules for VPC, EKS, IAM, storage)
-- Kubernetes manifests for vLLM and router services
-- Router service framework (FastAPI with metrics)
-- Observability configuration (Prometheus, Grafana, Loki, DCGM)
-- Project structure and documentation
+## ACTIVE BUILD : 
 
-### 🚧 In Progress
-- Deploying infrastructure to AWS
-- Testing vLLM deployment with actual models (Qwen 1.5B, LLaMA 3.2-3B)
-- Implementing routing logic (currently heuristic-based)
-- Validating end-to-end request flow
-- Benchmarking and optimization
+Repo Structure
 
-### ⚪ Planned (Next Phases)
-- Semantic classifier (replacing current heuristic stub)
-- Load testing and performance tuning
-- Multi-tier caching optimization
-- Production security hardening
-- Cost tracking and optimization
-- Comprehensive testing suite
-
-## Architecture Overview
-
-**Target Architecture:**
-- **Router Service:** FastAPI-based request router with context affinity
-- **vLLM Instances:** Two-tier deployment (fast + reasoning models)
-- **Infrastructure:** AWS EKS with GPU nodes, FSx storage, managed observability
-- **Monitoring:** Prometheus + Grafana for inference metrics, DCGM for GPU monitoring
-
-**Planned Models for Validation:**
-- Fast Tier: Qwen 1.5B (~3GB, latency target under light load: <100ms)
-- Reasoning Tier: LLaMA 3.2-3B (~6GB, latency target under light load: <500ms)
-
-**Infrastructure (Target):**
-- 2x g4dn.xlarge nodes (T4 GPUs, 16GB VRAM each)
-- Estimated cost: ~$1/hour (~$720/month)
-
-See [docs/architecture.md](docs/architecture.md) for detailed design.
-
-## Repository Structure
 ```
+
 llm-inference-platform/
 ├── services/          # Application code
 │   ├── router/        # Request routing service (FastAPI)

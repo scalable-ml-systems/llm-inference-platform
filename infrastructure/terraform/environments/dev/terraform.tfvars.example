@@ -1,0 +1,4 @@
+region             = "us-east-1"
+project_name       = "llm-inference-platform"
+cluster_name       = "llm-inference-platform-dev"
+models_bucket_name = "your-unique-bucket-name"
