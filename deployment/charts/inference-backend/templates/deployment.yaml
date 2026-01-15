@@ -115,6 +115,10 @@ spec:
           env:
             - name: STATUS_PATH
               value: {{ .Values.status.endpointPath | quote }}
+            - name: BACKEND_ID
+              value: {{ .Values.backend.id | quote }}
+            - name: MODEL_ID
+              value: {{ .Values.backend.model.id | quote }}
             - name: VLLM_URL
               value: "http://127.0.0.1:{{ .Values.service.ports.vllm }}"
             {{- with .Values.status.env }}
