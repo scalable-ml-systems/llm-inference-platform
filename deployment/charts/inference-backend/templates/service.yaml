@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "inference-backend.fullname" . }}
+  labels:
+    {{- include "inference-backend.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "inference-backend.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: vllm
+      port: {{ .Values.service.ports.vllm }}
+      targetPort: vllm
+    - name: status
+      port: {{ .Values.service.ports.status }}
+      targetPort: status

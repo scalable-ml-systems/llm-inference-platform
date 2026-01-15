@@ -1,0 +1,8 @@
+Inference Backend deployed: {{ include "inference-backend.fullname" . }}
+
+Service:
+  vLLM   : {{ include "inference-backend.fullname" . }}:{{ .Values.service.ports.vllm }}
+  Status : {{ include "inference-backend.fullname" . }}:{{ .Values.service.ports.status }}{{ .Values.status.endpointPath }}
+
+Example (in-cluster):
+  curl -s http://{{ include "inference-backend.fullname" . }}:{{ .Values.service.ports.status }}{{ .Values.status.endpointPath }}

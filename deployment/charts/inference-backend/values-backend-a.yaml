@@ -1,0 +1,17 @@
+backend:
+  id: "vllm-a"
+  model:
+    id: "mistral-7b-instruct"
+  vllmArgs:
+    - "--model=mistralai/Mistral-7B-Instruct-v0.2"
+    - "--max-model-len=4096"
+    - "--gpu-memory-utilization=0.85"
+    - "--dtype=float16"
+
+nodeSelector:
+  workload: gpu
+
+tolerations:
+  - key: "nvidia.com/gpu"
+    operator: "Exists"
+    effect: "NoSchedule"

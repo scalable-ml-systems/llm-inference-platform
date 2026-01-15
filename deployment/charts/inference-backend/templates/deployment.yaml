@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "inference-backend.fullname" . }}
+  labels:
+    {{- include "inference-backend.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "inference-backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "inference-backend.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}{{ toYaml . | nindent 8 }}{{- end }}
+      annotations:
+        {{- with .Values.podAnnotations }}{{ toYaml . | nindent 8 }}{{- end }}
+    spec:
+      serviceAccountName: {{ include "inference-backend.serviceAccountName" . }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      volumes:
+        - name: model-config
+          configMap:
+            name: {{ include "inference-backend.fullname" . }}-model
+        {{- if .Values.warmup.enabled }}
+        - name: warmup
+          configMap:
+            name: {{ include "inference-backend.fullname" . }}-warmup
+            defaultMode: 0755
+        {{- end }}
+        {{- with .Values.backend.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+
+      {{- if .Values.warmup.enabled }}
+      initContainers:
+        - name: warmup
+          image: curlimages/curl:8.10.1
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh","-c"]
+          args:
+            - "{{ .Values.warmup.scriptMountPath }}/warmup.sh"
+          env:
+            {{- with .Values.warmup.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: warmup
+              mountPath: {{ .Values.warmup.scriptMountPath }}
+      {{- end }}
+
+      containers:
+        - name: vllm
+          image: "{{ .Values.image.vllm.repository }}:{{ .Values.image.vllm.tag }}"
+          imagePullPolicy: {{ .Values.image.vllm.pullPolicy }}
+          ports:
+            - name: vllm
+              containerPort: {{ .Values.service.ports.vllm }}
+          args:
+            {{- range .Values.backend.vllmArgs }}
+            - {{ . | quote }}
+            {{- end }}
+          env:
+            {{- with .Values.backend.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources.vllm | nindent 12 }}
+          volumeMounts:
+            - name: model-config
+              mountPath: {{ .Values.backend.model.configMountPath }}
+              readOnly: true
+            {{- with .Values.backend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /v1/models
+              port: vllm
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 12
+          livenessProbe:
+            tcpSocket:
+              port: vllm
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 6
+
+        {{- if .Values.status.enabled }}
+        - name: status-sidecar
+          image: "{{ .Values.image.status.repository }}:{{ .Values.image.status.tag }}"
+          imagePullPolicy: {{ .Values.image.status.pullPolicy }}
+          ports:
+            - name: status
+              containerPort: {{ .Values.service.ports.status }}
+          env:
+            - name: STATUS_PATH
+              value: {{ .Values.status.endpointPath | quote }}
+            - name: VLLM_URL
+              value: "http://127.0.0.1:{{ .Values.service.ports.vllm }}"
+            {{- with .Values.status.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources.status | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.status.endpointPath }}
+              port: status
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.status.endpointPath }}
+              port: status
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 6
+        {{- end }}

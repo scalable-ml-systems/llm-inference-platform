@@ -1,0 +1,81 @@
+nameOverride: ""
+fullnameOverride: ""
+
+replicaCount: 1
+
+image:
+  vllm:
+    repository: ghcr.io/your-org/vllm-backend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  status:
+    repository: ghcr.io/your-org/status-sidecar
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+# GPU scheduling knobs
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+resources:
+  vllm:
+    requests:
+      cpu: "1"
+      memory: "4Gi"
+    limits:
+      cpu: "4"
+      memory: "16Gi"
+      nvidia.com/gpu: 1
+  status:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+
+service:
+  type: ClusterIP
+  ports:
+    vllm: 8000
+    status: 9000
+
+# vLLM runtime config
+backend:
+  id: "backend"
+  model:
+    id: "model-a"
+    # This gets mounted from a ConfigMap at /etc/inference/model.yaml
+    configMountPath: "/etc/inference"
+    configFileName: "model.yaml"
+
+  # vLLM server args (keep minimal, tune later)
+  vllmArgs:
+    - "--host=0.0.0.0"
+    - "--port=8000"
+    - "--uvicorn-log-level=info"
+    # model-specific flags can be injected via values-backend-a/b.yaml
+
+  env: []
+  extraVolumeMounts: []
+  extraVolumes: []
+
+status:
+  enabled: true
+  endpointPath: "/internal/status"
+  env: []
+
+warmup:
+  enabled: true
+  # script is mounted to /opt/warmup/warmup.sh
+  scriptMountPath: "/opt/warmup"
+  timeoutSeconds: 120
+  env: []

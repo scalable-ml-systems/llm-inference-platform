@@ -1,0 +1,41 @@
+{{- if .Values.warmup.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "inference-backend.fullname" . }}-warmup
+  labels:
+    {{- include "inference-backend.labels" . | nindent 4 }}
+data:
+  warmup.sh: |
+    #!/usr/bin/env sh
+    set -eu
+
+    VLLM_URL="http://127.0.0.1:{{ .Values.service.ports.vllm }}"
+    TIMEOUT="{{ .Values.warmup.timeoutSeconds }}"
+
+    echo "[warmup] waiting for vLLM readiness at ${VLLM_URL} (timeout=${TIMEOUT}s)"
+    start_ts=$(date +%s)
+
+    while true; do
+      if curl -sf "${VLLM_URL}/v1/models" >/dev/null 2>&1; then
+        break
+      fi
+      now_ts=$(date +%s)
+      elapsed=$((now_ts - start_ts))
+      if [ "${elapsed}" -ge "${TIMEOUT}" ]; then
+        echo "[warmup] timeout waiting for vLLM"
+        exit 1
+      fi
+      sleep 1
+    done
+
+    echo "[warmup] vLLM is up; sending tiny completion request"
+    # NOTE: vLLM supports OpenAI-compatible endpoints if started that way.
+    # Adjust payload if you use a different API.
+    curl -sf "${VLLM_URL}/v1/chat/completions" \
+      -H "Content-Type: application/json" \
+      -d '{"model":"{{ .Values.backend.model.id }}","messages":[{"role":"user","content":"ping"}],"max_tokens":16}' \
+      >/dev/null || true
+
+    echo "[warmup] done"
+{{- end -}}

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: inference-backend
+description: Layer 3 - GPU Pool vLLM backend (A/B) with status sidecar and warmup
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
