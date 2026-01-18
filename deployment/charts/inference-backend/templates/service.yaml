@@ -8,6 +8,7 @@ spec:
   type: {{ .Values.service.type }}
   selector:
     {{- include "inference-backend.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/role: serving
   ports:
     - name: vllm
       port: {{ .Values.service.ports.vllm }}

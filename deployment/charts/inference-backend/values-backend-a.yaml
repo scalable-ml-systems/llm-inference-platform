@@ -1,17 +1,84 @@
-backend:
-  id: "vllm-a"
-  model:
-    id: "mistral-7b-instruct"
-  vllmArgs:
-    - "--model=mistralai/Mistral-7B-Instruct-v0.2"
-    - "--max-model-len=4096"
-    - "--gpu-memory-utilization=0.85"
-    - "--dtype=float16"
+replicaCount: 1
+
+image:
+  vllm:
+    repository: vllm/vllm-openai
+    tag: latest
+    pullPolicy: IfNotPresent
+
+status:
+  enabled: false
 
 nodeSelector:
   workload: gpu
 
 tolerations:
   - key: "nvidia.com/gpu"
-    operator: "Exists"
+    operator: "Equal"
+    value: "present"
     effect: "NoSchedule"
+
+# Prefer to keep A and B on different GPU nodes
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: In
+              values:
+                - inference-backend-b
+        topologyKey: "kubernetes.io/hostname"
+
+backend:
+  id: "backend-a"
+  vllmArgs:
+    - "--model=TheBloke/Mistral-7B-Instruct-v0.2-AWQ"
+    - "--host=0.0.0.0"
+    - "--port=8000"
+    - "--gpu-memory-utilization=0.85"
+    - "--max-model-len=4096"
+    - "--max-num-batched-tokens=2048"
+    - "--max-num-seqs=8"
+  env:
+    - name: HF_HOME
+      value: /cache/huggingface
+    - name: HF_HUB_DISABLE_TELEMETRY
+      value: "1"
+    - name: HF_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: hf-token
+          key: HF_TOKEN
+  extraVolumes:
+    - name: hf-cache
+      hostPath:
+        path: /var/lib/hf-cache
+        type: DirectoryOrCreate
+    - name: dshm
+      emptyDir:
+        medium: Memory
+        sizeLimit: 1Gi
+  extraVolumeMounts:
+    - name: hf-cache
+      mountPath: /cache/huggingface
+    - name: dshm
+      mountPath: /dev/shm
+
+resources:
+  vllm:
+    requests:
+      cpu: "2"
+      memory: "8Gi"
+    limits:
+      cpu: "4"
+      memory: "14Gi"
+      nvidia.com/gpu: 1
+
+warmup:
+  enabled: false        # keep initContainer OFF forever
+  jobEnabled: true
+  baseUrl: "http://inference-backend-backend-a.inference-backend.svc.cluster.local:8000"
+  modelId: "TheBloke/Mistral-7B-Instruct-v0.2-AWQ"
+  waitLoops: 180
+  sleepSeconds: 5

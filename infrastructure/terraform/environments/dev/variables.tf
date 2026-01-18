@@ -3,6 +3,16 @@ variable "region" {
   description = "AWS region"
 }
 
+variable "account_id" {
+  description = "AWS account ID for this environment"
+  type        = string
+}
+
+variable "profile" {
+  type        = string
+  description = "AWS account profile"
+}
+
 variable "project_name" {
   type        = string
   description = "Project name"
@@ -46,18 +56,18 @@ variable "gpu_instance_type" {
 }
 
 variable "gpu_desired_size" {
-  type        = number
-  default     = 2
+  type    = number
+  default = 2
 }
 
 variable "gpu_min_size" {
-  type        = number
-  default     = 0
+  type    = number
+  default = 0
 }
 
 variable "gpu_max_size" {
-  type        = number
-  default     = 2
+  type    = number
+  default = 2
 }
 
 variable "models_bucket_name" {
@@ -69,4 +79,9 @@ variable "force_destroy_models_bucket" {
   type        = bool
   description = "Allow terraform destroy to delete bucket contents (dev only)"
   default     = true
+}
+
+variable "enable_gpu" {
+  type    = bool
+  default = false
 }

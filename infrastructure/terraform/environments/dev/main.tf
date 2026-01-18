@@ -1,3 +1,9 @@
+data "aws_caller_identity" "current" {}
+
+output "tf_account_id" {
+  value = data.aws_caller_identity.current.account_id
+}
+
 locals {
   inference_namespace      = "inference-backend"
   inference_serviceaccount = "inference-backend-sa"
@@ -29,11 +35,11 @@ module "iam_roles" {
 }
 
 module "cluster_eks" {
-  source             = "../../modules/cluster-eks"
-  name               = var.cluster_name
-  kubernetes_version = var.kubernetes_version
-  vpc_id             = module.network_vpc.vpc_id
-  private_subnet_ids  = module.network_vpc.private_subnet_ids
+  source               = "../../modules/cluster-eks"
+  name                 = var.cluster_name
+  kubernetes_version   = var.kubernetes_version
+  vpc_id               = module.network_vpc.vpc_id
+  private_subnet_ids   = module.network_vpc.private_subnet_ids
   eks_cluster_role_arn = module.iam_roles.eks_cluster_role_arn
 
   tags = {
@@ -42,9 +48,31 @@ module "cluster_eks" {
   }
 }
 
-module "nodegroup_gpu" {
-  source        = "../../modules/nodegroup-gpu"
+module "nodegroup_system" {
+  source        = "../../modules/nodegroup-system"
   cluster_name  = module.cluster_eks.cluster_name
+  subnet_ids    = module.network_vpc.private_subnet_ids
+  node_role_arn = module.iam_roles.node_role_arn
+
+  # default for dev/prod baseline
+  instance_type = "t3.large"
+
+  desired_size = 2
+  min_size     = 1
+  max_size     = 3
+
+  tags = {
+    project = var.project_name
+    env     = var.env
+  }
+
+  depends_on = [module.cluster_eks]
+}
+
+module "nodegroup_gpu" {
+  count         = var.enable_gpu ? 1 : 0
+  source        = "../../modules/nodegroup-gpu"
+  cluster_name  = var.cluster_name
   subnet_ids    = module.network_vpc.private_subnet_ids
   node_role_arn = module.iam_roles.node_role_arn
 
@@ -53,11 +81,51 @@ module "nodegroup_gpu" {
   min_size      = var.gpu_min_size
   max_size      = var.gpu_max_size
 
-  depends_on = [module.cluster_eks]
 
   tags = {
     project = var.project_name
     env     = var.env
+  }
+
+  depends_on = [module.cluster_eks]
+}
+
+resource "aws_eks_addon" "vpc_cni" {
+  cluster_name = module.cluster_eks.cluster_name
+  addon_name   = "vpc-cni"
+
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+
+  depends_on = [module.nodegroup_system]
+}
+
+resource "aws_eks_addon" "kube_proxy" {
+  cluster_name = module.cluster_eks.cluster_name
+  addon_name   = "kube-proxy"
+
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+
+  depends_on = [module.nodegroup_system]
+}
+
+resource "aws_eks_addon" "coredns" {
+  cluster_name = module.cluster_eks.cluster_name
+  addon_name   = "coredns"
+
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+
+  depends_on = [
+    module.nodegroup_system,
+    aws_eks_addon.vpc_cni
+  ]
+
+  timeouts {
+    create = "40m"
+    update = "40m"
+    delete = "20m"
   }
 }
 
@@ -149,5 +217,5 @@ resource "aws_iam_role" "inference_backend_irsa" {
 
 resource "aws_iam_role_policy_attachment" "inference_backend_models_access" {
   role       = aws_iam_role.inference_backend_irsa.name
-  policy_arn  = aws_iam_policy.models_s3_readonly.arn
+  policy_arn = aws_iam_policy.models_s3_readonly.arn
 }

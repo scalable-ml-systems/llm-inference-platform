@@ -1,0 +1,47 @@
+{{- if .Values.warmup.jobEnabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "inference-backend.fullname" . }}-warmup-{{ .Release.Revision }}
+  labels:
+    {{- include "inference-backend.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        {{- include "inference-backend.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/role: warmup
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: warmup
+          image: curlimages/curl:8.10.1
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              set -e
+              echo "[warmup] waiting for backend to become ready..."
+              for i in $(seq 1 {{ .Values.warmup.waitLoops }}); do
+                if curl -sf {{ .Values.warmup.baseUrl }}/v1/models >/dev/null; then
+                  echo "[warmup] backend ready"
+                  break
+                fi
+                echo "[warmup] not ready yet ($i/{{ .Values.warmup.waitLoops }})"
+                sleep {{ .Values.warmup.sleepSeconds }}
+              done
+
+              echo "[warmup] sending warmup request..."
+              curl -sf {{ .Values.warmup.baseUrl }}/v1/chat/completions \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "model":"{{ .Values.warmup.modelId }}",
+                  "messages":[{"role":"user","content":"Say: warmup ok"}],
+                  "max_tokens":16,
+                  "temperature":0
+                }' | head -c 200 || true
+
+              echo "[warmup] done"
+{{- end }}

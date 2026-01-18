@@ -4,6 +4,40 @@
 
 This repository is an applied project that explores production-grade LLM inference infrastructure patterns on AWS EKS, with a focus on performance, cost optimization, observability, and security.
 
+STATUS : 
+
+Inference Backend Milestone — Artifact Summary
+
+Status: COMPLETE & VERIFIED
+
+Two LLMs successfully deployed:
+
+LLaMA-3.1-8B (AWQ INT4)
+
+Mistral-7B Instruct (AWQ)
+
+Infrastructure: AWS EKS with 2 dedicated GPU nodes (g4dn.xlarge)
+
+Placement:
+
+1 model per GPU node (no GPU oversubscription)
+
+Inference Engine: vLLM with TRITON_ATTN
+
+API: OpenAI-compatible (/v1/models, /v1/chat/completions)
+
+Operational State:
+
+Models fully loaded
+
+Backends stable (no CrashLoop, no Pending pods)
+
+Ready for live inference traffic
+
+Result:
+ Both LLaMA and Mistral are serving inference concurrently on separate GPUs, with deterministic scheduling and production-safe rollout behavior.
+
+
 <img width="800" height="800" alt="vllm-inference-platform-complete" src="https://github.com/user-attachments/assets/110f2d8c-2a21-4977-bc62-0795161ee41d" />
 
 

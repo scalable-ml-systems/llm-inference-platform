@@ -27,7 +27,7 @@ output "private_subnet_ids" {
 }
 
 output "gpu_nodegroup_name" {
-  value = module.nodegroup_gpu.nodegroup_name
+  value = "${var.cluster_name}-gpu"
 }
 
 output "models_bucket_name" {
@@ -36,4 +36,8 @@ output "models_bucket_name" {
 
 output "inference_backend_irsa_role_arn" {
   value = aws_iam_role.inference_backend_irsa.arn
+}
+
+output "tf_arn" {
+  value = data.aws_caller_identity.current.arn
 }
