@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: inference-backend
+  namespace: observability
+  labels:
+    release: kps
+spec:
+  namespaceSelector:
+    matchNames:
+      - inference-backend
+  selector:
+    matchLabels:
+      app: inference-backend
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

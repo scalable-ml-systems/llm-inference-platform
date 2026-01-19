@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: router-config
+  namespace: router
+data:
+  router-config.yaml: |
+    # NOTE: keep values aligned with services/router-service/configs/router-config.yaml
+    service:
+      name: router-service
+      env: dev
+    upstreams:
+      backend_a:
+        name: backend-a
+        base_url: "http://backend-a.inference-backend.svc.cluster.local:8000"
+      backend_b:
+        name: backend-b
+        base_url: "http://backend-b.inference-backend.svc.cluster.local:8000"
+    timeouts:
+      connect_ms: 1000
+      request_ms: 60000
+    retries:
+      max_attempts: 1
+      retry_on_status: [502, 503, 504]
+    affinity:
+      enabled: true
+      header_session_id: "x-session-id"
+      ttl_seconds: 1800
+    redis:
+      enabled: true
+      url: "redis://redis.router.svc.cluster.local:6379/0"
+      key_prefix_affinity: "affinity:"
+      key_prefix_circuit: "circuit:"
+      circuit_open_ttl_seconds: 30
+    routing_rules:
+      path: "/etc/router/routing-rules.yaml"
+    observability:
+      metrics_enabled: true
+      log_json: true
+
+  routing-rules.yaml: |
+    default_backend: backend-a
+    fallback_backend: backend-b
+    rules:
+      - name: "high_max_tokens_go_stronger"
+        when:
+          max_tokens_gte: 800
+        route_to: backend-b
+      - name: "long_prompt_go_stronger"
+        when:
+          prompt_chars_gte: 8000
+        route_to: backend-b
+      - name: "code_or_math_hint_go_stronger"
+        when:
+          any_keywords: ["code", "python", "java", "c++", "math", "proof", "derivation"]
+        route_to: backend-b

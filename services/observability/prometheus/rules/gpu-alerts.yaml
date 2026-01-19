@@ -1,0 +1,31 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gpu-alerts
+  namespace: observability
+  labels:
+    release: kps
+spec:
+  groups:
+    - name: gpu.rules
+      rules:
+        - alert: GPUSustainedHighUtilization
+          expr: avg_over_time(DCGM_FI_DEV_GPU_UTIL[5m]) > 90
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "GPU utilization > 90% for 10m"
+            description: "GPU {{ $labels.gpu }} on {{ $labels.instance }} is saturated."
+
+        - alert: GPUHighMemoryUtilization
+          expr: |
+            avg_over_time(DCGM_FI_DEV_FB_USED[5m])
+            /
+            avg_over_time(DCGM_FI_DEV_FB_TOTAL[5m]) > 0.90
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "GPU memory > 90% for 10m"
+            description: "GPU memory pressure is high on {{ $labels.instance }}."

@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: router-alerts
+  namespace: observability
+  labels:
+    release: kps
+spec:
+  groups:
+    - name: router.rules
+      rules:
+        - alert: RouterHigh5xxRate
+          expr: |
+            sum(rate(router_http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(router_http_requests_total[5m])) > 0.02
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Router 5xx rate > 2% for 10m"
+            description: "Router is failing requests at elevated rates."

@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: router-service
+  namespace: observability
+  labels:
+    release: kps
+spec:
+  namespaceSelector:
+    matchNames:
+      - router-service
+  selector:
+    matchLabels:
+      app: router-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

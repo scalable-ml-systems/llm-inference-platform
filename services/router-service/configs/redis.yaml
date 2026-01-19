@@ -1,0 +1,7 @@
+enabled: true
+affinity_ttl_seconds: 1800
+circuit_open_ttl_seconds: 30
+
+keys:
+  affinity_prefix: "affinity:"
+  circuit_prefix: "circuit:"

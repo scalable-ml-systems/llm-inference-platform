@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: backend-alerts
+  namespace: observability
+  labels:
+    release: kps
+spec:
+  groups:
+    - name: backend.rules
+      rules:
+        - alert: BackendTargetDown
+          expr: up{job=~".*inference-backend.*"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Backend target is down"
+            description: "Prometheus cannot scrape inference backend metrics."

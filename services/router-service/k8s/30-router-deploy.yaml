@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: router-service
+  namespace: router
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: router-service }
+  template:
+    metadata:
+      labels: { app: router-service }
+    spec:
+      containers:
+        - name: router-service
+          image: REPLACE_WITH_YOUR_IMAGE:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ROUTER_CONFIG_PATH
+              value: /etc/router/router-config.yaml
+          volumeMounts:
+            - name: router-config
+              mountPath: /etc/router
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+      volumes:
+        - name: router-config
+          configMap:
+            name: router-config
