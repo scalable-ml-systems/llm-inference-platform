@@ -5,10 +5,10 @@ service:
 upstreams:
   backend_a:
     name: backend-a
-    base_url: "http://backend-a.inference-backend.svc.cluster.local:8000"
+    base_url: "http://inference-backend-backend-a.inference-backend.svc.cluster.local:8000"
   backend_b:
     name: backend-b
-    base_url: "http://backend-b.inference-backend.svc.cluster.local:8000"
+    base_url: "http://inference-backend-backend-b.inference-backend.svc.cluster.local:8000"
 
 timeouts:
   connect_ms: 1000
@@ -25,7 +25,7 @@ affinity:
 
 redis:
   enabled: true
-  url: "redis://redis.router.svc.cluster.local:6379/0"
+  url: "redis://redis-master.router.svc.cluster.local:6379/0"
   key_prefix_affinity: "affinity:"
   key_prefix_circuit: "circuit:"
   circuit_open_ttl_seconds: 30

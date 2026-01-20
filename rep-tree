@@ -1,0 +1,97 @@
+.
+├── LICENSE
+├── README.md
+├── benchmarks
+│   ├── results
+│   └── router_benchmark.py
+├── ci
+├── deployment
+│   ├── charts
+│   │   └── inference-backend
+│   │       ├── Chart.yaml
+│   │       ├── templates
+│   │       ├── values-backend-a.yaml
+│   │       ├── values-backend-b.yaml
+│   │       └── values.yaml
+│   ├── k8s
+│   └── values
+│       ├── dev.yaml
+│       ├── values-backend-a.yaml
+│       └── values-backend-b.yaml
+├── docs
+│   ├── architecture.md
+│   ├── notion-checklist.md
+│   ├── observability-metrics.md
+│   └── setup
+│       ├── environments.md
+│       ├── networking.md
+│       ├── setup-backend.md
+│       ├── setup.md
+│       └── terraform-iac.md
+├── experiments
+├── infrastructure
+│   ├── scripts
+│   │   ├── nightoff.sh
+│   │   └── resume-dev.sh
+│   └── terraform
+│       ├── Readme-infra.md
+│       ├── environments
+│       │   ├── dev
+│       │   └── prod
+│       └── modules
+│           ├── cluster-eks
+│           ├── iam-roles
+│           ├── network-vpc
+│           ├── nodegroup-gpu
+│           ├── nodegroup-system
+│           └── observability-stack
+├── observability
+├── rep-tree
+└── services
+    ├── edge-gateway
+    ├── inference-backend
+    │   ├── internal
+    │   │   └── status_sidecar
+    │   └── scripts
+    │       ├── smoke_test.sh
+    │       └── validate_status_latency.py
+    ├── observability
+    │   ├── Readme-metrics.md
+    │   ├── grafana
+    │   │   ├── dashboards
+    │   │   └── provisioning
+    │   ├── loki
+    │   │   └── Readme-loki.md
+    │   ├── prometheus
+    │   │   ├── rules
+    │   │   └── scrape-configs
+    │   └── tempo
+    │       └── Readme-tempo.md
+    └── router-service
+        ├── Readme-router.md
+        ├── configs
+        │   ├── redis.yaml
+        │   ├── router-config.yaml
+        │   └── routing-rules.yaml
+        ├── docker
+        │   └── Dockerfile
+        ├── k8s
+        │   ├── 00-namespace.yaml
+        │   ├── 10-redis.yaml
+        │   ├── 20-router-configmap.yaml
+        │   ├── 30-router-deploy.yaml
+        │   └── 40-router-svc.yaml
+        ├── requirements.txt
+        ├── scripts
+        │   ├── failover.sh
+        │   └── smoke.sh
+        └── src
+            ├── affinity
+            ├── api
+            ├── contracts
+            ├── execution
+            ├── main.py
+            ├── observability
+            └── routing
+
+54 directories, 41 files

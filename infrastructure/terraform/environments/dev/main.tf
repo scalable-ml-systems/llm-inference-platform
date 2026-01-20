@@ -219,3 +219,12 @@ resource "aws_iam_role_policy_attachment" "inference_backend_models_access" {
   role       = aws_iam_role.inference_backend_irsa.name
   policy_arn = aws_iam_policy.models_s3_readonly.arn
 }
+
+module "observability_stack" {
+  source = "../../modules/observability-stack"
+
+  namespace                     = "monitoring"
+  kps_release_name              = "kube-prometheus-stack"
+  observability_dir             = "../../../services/observability"
+  selector_nil_uses_helm_values = false
+}

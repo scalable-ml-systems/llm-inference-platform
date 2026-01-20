@@ -3,6 +3,8 @@ import yaml
 from dataclasses import dataclass
 from typing import Optional, Any
 from functools import lru_cache
+from config.loader import get_config
+
 
 @dataclass
 class Decision:
@@ -12,11 +14,6 @@ class Decision:
     affinity_hit: bool = False
 
 @lru_cache(maxsize=1)
-def get_config() -> dict[str, Any]:
-    # Prefer mounted config in K8s. Allow local override.
-    path = os.environ.get("ROUTER_CONFIG_PATH", "/etc/router/router-config.yaml")
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
 
 def get_rules_path(cfg: dict[str, Any]) -> str:
     return cfg["routing_rules"]["path"]

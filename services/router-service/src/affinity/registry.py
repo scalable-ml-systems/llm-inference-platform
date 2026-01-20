@@ -1,5 +1,5 @@
 from redis.asyncio import Redis
-from routing.decision import get_config
+from config.loader import get_config
 from typing import Optional
 
 _redis: Optional[Redis] = None

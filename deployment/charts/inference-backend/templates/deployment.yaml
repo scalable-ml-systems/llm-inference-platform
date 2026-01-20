@@ -118,6 +118,7 @@ spec:
           ports:
             - name: status
               containerPort: {{ .Values.service.ports.status }}
+              protocol: TCP 
           env:
             - name: STATUS_PATH
               value: {{ .Values.status.endpointPath | quote }}
