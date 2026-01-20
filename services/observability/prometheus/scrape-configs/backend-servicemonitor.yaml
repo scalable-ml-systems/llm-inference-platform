@@ -2,17 +2,17 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: inference-backend
-  namespace: observability
+  namespace: monitoring
   labels:
-    release: kps
+    release: kube-prometheus-stack
 spec:
   namespaceSelector:
     matchNames:
       - inference-backend
   selector:
     matchLabels:
-      app: inference-backend
+      app.kubernetes.io/name: inference-backend
   endpoints:
-    - port: http
+    - port: "9000"
       path: /metrics
       interval: 15s

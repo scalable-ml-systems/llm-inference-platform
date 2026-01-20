@@ -1,9 +1,7 @@
 apiVersion: 1
-
 providers:
-  - name: "llm-platform"
-    orgId: 1
-    folder: "LLM Platform"
+  - name: "llm-inference-platform"
+    folder: "LLM Inference"
     type: file
     disableDeletion: false
     editable: true

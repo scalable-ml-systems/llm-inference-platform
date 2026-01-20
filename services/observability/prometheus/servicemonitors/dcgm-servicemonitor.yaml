@@ -1,18 +1,18 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: router-service
+  name: dcgm-exporter
   namespace: monitoring
   labels:
-    release: kube-prometheus-stack   # only needed if you did NOT set selectorNilUsesHelmValues=false
+    release: kube-prometheus-stack
 spec:
   namespaceSelector:
     matchNames:
-      - router
+      - monitoring
   selector:
     matchLabels:
-      app: router-service
+      app.kubernetes.io/name: dcgm-exporter
   endpoints:
-    - port: http
+    - port: metrics
       path: /metrics
       interval: 15s
