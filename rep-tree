@@ -5,11 +5,25 @@
 │   ├── results
 │   └── router_benchmark.py
 ├── ci
+├── dashboards
+│   ├── dashboard-1.vllm-main.json
+│   ├── dcgm-exporter.json
+│   ├── inference-GPU-correlation-dashboard.json
+│   ├── inference-GPU.json
+│   └── prefill-decode-dashboard.json
 ├── deployment
 │   ├── charts
 │   │   └── inference-backend
 │   │       ├── Chart.yaml
 │   │       ├── templates
+│   │       │   ├── NOTES.txt
+│   │       │   ├── _helpers.tpl
+│   │       │   ├── configmap-model.yaml
+│   │       │   ├── configmap-warmup.yaml
+│   │       │   ├── deployment.yaml
+│   │       │   ├── service.yaml
+│   │       │   ├── serviceaccount.yaml
+│   │       │   └── warmup-job.yaml
 │   │       ├── values-backend-a.yaml
 │   │       ├── values-backend-b.yaml
 │   │       └── values.yaml
@@ -29,6 +43,7 @@
 │       ├── setup.md
 │       └── terraform-iac.md
 ├── experiments
+│   └── loadtest-scripts
 ├── infrastructure
 │   ├── scripts
 │   │   ├── nightoff.sh
@@ -37,21 +52,67 @@
 │       ├── Readme-infra.md
 │       ├── environments
 │       │   ├── dev
+│       │   │   ├── dev.tfvars
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── providers.tf
+│       │   │   ├── terraform.tfstate
+│       │   │   ├── terraform.tfstate.backup
+│       │   │   ├── terraform.tfvars
+│       │   │   ├── terraform.tfvars.example
+│       │   │   ├── variables.tf
+│       │   │   └── versions.tf
 │       │   └── prod
 │       └── modules
 │           ├── cluster-eks
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   ├── variables.tf
+│           │   └── versions.tf
 │           ├── iam-roles
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   ├── variables.tf
+│           │   └── versions.tf
 │           ├── network-vpc
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   ├── variables.tf
+│           │   └── versions.tf
 │           ├── nodegroup-gpu
+│           │   ├── main.tf
+│           │   ├── outputs.tf
+│           │   ├── variables.tf
+│           │   └── versions.tf
 │           ├── nodegroup-system
+│           │   ├── main.tf
+│           │   └── variables.tf
 │           └── observability-stack
-├── observability
+│               ├── Readme.iac.md
+│               ├── grafana.tf
+│               ├── main.tf
+│               ├── monitors_rules.tf
+│               ├── outputs.tf
+│               ├── variables.tf
+│               └── versions.tf
+├── kubectl
 ├── rep-tree
 └── services
     ├── edge-gateway
+    │   ├── Dockerfile
+    │   └── helm
+    │       └── edge-gateway
+    │           ├── Chart.yaml
+    │           ├── envoy.yaml
+    │           ├── templates
+    │           └── values.yaml
     ├── inference-backend
     │   ├── internal
     │   │   └── status_sidecar
+    │   │       ├── Dockerfile
+    │   │       ├── gpu.py
+    │   │       ├── main.py
+    │   │       └── requirements.txt
     │   └── scripts
     │       ├── smoke_test.sh
     │       └── validate_status_latency.py
@@ -59,12 +120,27 @@
     │   ├── Readme-metrics.md
     │   ├── grafana
     │   │   ├── dashboards
+    │   │   │   ├── dashboard-1.vllm-main.json
+    │   │   │   ├── gpu-utilization-dcgm.json
+    │   │   │   ├── inference-GPU-correlation-dashboard.json
+    │   │   │   ├── inference-GPU.json
+    │   │   │   └── prefill-decode-dashboard.json
     │   │   └── provisioning
+    │   │       ├── dashboards
+    │   │       └── datasources
     │   ├── loki
     │   │   └── Readme-loki.md
     │   ├── prometheus
     │   │   ├── rules
-    │   │   └── scrape-configs
+    │   │   │   ├── backend-alerts.yaml
+    │   │   │   ├── gpu-alerts.yaml
+    │   │   │   └── router-alerts.yaml
+    │   │   ├── scrape-configs
+    │   │   │   ├── backend-servicemonitor.yaml
+    │   │   │   └── router-servicemonitor.yaml
+    │   │   └── servicemonitors
+    │   │       ├── dcgm-servicemonitor.yaml
+    │   │       └── vllm-servicemonitor.yaml
     │   └── tempo
     │       └── Readme-tempo.md
     └── router-service
@@ -87,11 +163,28 @@
         │   └── smoke.sh
         └── src
             ├── affinity
+            │   ├── keying.py
+            │   └── registry.py
             ├── api
+            │   ├── chat_completions.py
+            │   ├── healthz.py
+            │   ├── models.py
+            │   └── readyz.py
+            ├── config
+            │   ├── __init__.py
+            │   └── loader.py
             ├── contracts
+            │   └── openai.py
             ├── execution
+            │   ├── health.py
+            │   └── upstream.py
             ├── main.py
             ├── observability
+            │   ├── logging.py
+            │   └── metrics.py
             └── routing
+                ├── _init_.py
+                ├── decision.py
+                └── rules.py
 
-54 directories, 41 files
+61 directories, 127 files

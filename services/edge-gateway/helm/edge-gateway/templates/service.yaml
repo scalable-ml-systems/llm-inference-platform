@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-gateway
+spec:
+  selector:
+    app: edge-gateway
+  ports:
+    - port: 80
+      targetPort: 8080

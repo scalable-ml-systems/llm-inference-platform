@@ -1,0 +1,7 @@
+image:
+  repository: envoyproxy/envoy
+  tag: v1.30-latest
+
+service:
+  port: 80
+  targetPort: 8080
