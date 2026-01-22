@@ -27,42 +27,33 @@ This layer is **stateless**, **horizontally scalable**, and designed to **fail f
 
 ## 2. High‑level architectural flow with visuals
 
- -- mermaid main diagram --
+ [![](https://mermaid.ink/img/pako:eNplUtuK2zAQ_RUxTyl1LnbsXPSwUFzTBrawOKEPxS_CnnUEtuRK8rZJCPQX9hf7JR3b61228YOwOJeZM5oL5LpA4GDxZ4sqx89SlEbUmWL0NcI4mctGKMdiJiyLK4nK3YK7Dtyp0qC1t2jSoYl60ic2SYoS2Rfh8Jc4fbilph011a1Dw_ZonmSOmRpo8fTubsfZ18PhYc9M1651bNIYXTfuxWlHlISzw_2eTK11R6Pb8si0If7fP8-Uz5wah8VgMmiSV8287oRUuZZKOKnVO8Kn1h3VvDvP7CNLKQG7l7V09h3rwWinc10RZZ8fsRbsu6hk8Z9dyllfywolnTxTQy95Bko6HcxStI1WFtmEcjipSlZgLi1ZzWnQbTXGTqZvoyGnQTROhKD4bWojlinwoDSyAP4oKose1JRbdHe4dNIMHLWPGXD6LfBRULkMMnUlHb3UD61r4M60pOyHPF7ahsKOW_RqblAVaGLdKgfcD5e9B_AL_Aa-DWfBerX1o_VqEfnLIPDgBDwM17NwvdkEmyCKolW4vXpw7osuZtFy64eLYBMuVuTlbz3AQjptvg2r3G_09R-gy-hG?type=png)](https://mermaid.live/edit#pako:eNplUtuK2zAQ_RUxTyl1LnbsXPSwUFzTBrawOKEPxS_CnnUEtuRK8rZJCPQX9hf7JR3b61228YOwOJeZM5oL5LpA4GDxZ4sqx89SlEbUmWL0NcI4mctGKMdiJiyLK4nK3YK7Dtyp0qC1t2jSoYl60ic2SYoS2Rfh8Jc4fbilph011a1Dw_ZonmSOmRpo8fTubsfZ18PhYc9M1651bNIYXTfuxWlHlISzw_2eTK11R6Pb8si0If7fP8-Uz5wah8VgMmiSV8287oRUuZZKOKnVO8Kn1h3VvDvP7CNLKQG7l7V09h3rwWinc10RZZ8fsRbsu6hk8Z9dyllfywolnTxTQy95Bko6HcxStI1WFtmEcjipSlZgLi1ZzWnQbTXGTqZvoyGnQTROhKD4bWojlinwoDSyAP4oKose1JRbdHe4dNIMHLWPGXD6LfBRULkMMnUlHb3UD61r4M60pOyHPF7ahsKOW_RqblAVaGLdKgfcD5e9B_AL_Aa-DWfBerX1o_VqEfnLIPDgBDwM17NwvdkEmyCKolW4vXpw7osuZtFy64eLYBMuVuTlbz3AQjptvg2r3G_09R-gy-hG)
 
-## 3. Security model — how prompts are protected ?
+## 3. Full Zero‑Trust Multi‑Tenant Pipeline
 
-[![](https://mermaid.ink/img/pako:eNplkk9r4zAQxb_KMKeWddP4TxxFh0LXWwJLe3FCFxZfhDVJBLbkleVs3ZDvXjnGhRCdJOY3b96TdMLSSEKOLf3rSJf0S4m9FXWhwa9GWKdK1QjtIAPRQlYp0u62uB6KL_poelgLR_9Ff8vkA5ObzpGFDdmjKqnQI5Y9PD2tuRcobd84kmAHN62Du-3r5n5k1iPzTlbtelDS-1Cuh7vff7aP9Q32onfGlgT5z-cMGlN5E9ReEbn3CZWqlYMf3mdfGSFB6bah0imjr9hNeaBawFFUSorras5hmO47fS4tqsn6SOQPo8Bz5w7Gqs9LtLYxuqVJwgPZdfSxPmXHAPdWSeQ7UbUUYE22FsMZT4NEgc57owK530raia5yBRb67Pv8tf81pkbubOc7ren2h-nQNT7J9Nrf4pa0JJuZTjvkYbS8aCA_4QfyiIUztkiT-YoliyRlqzjAHnnC0tmchel8lSZhksTxOcDPy9T5LF4uVnG0ZBFjLAmjRYAklTP2bfxzl693_gLYkMr5?type=png)](https://mermaid.live/edit#pako:eNplkk9r4zAQxb_KMKeWddP4TxxFh0LXWwJLe3FCFxZfhDVJBLbkleVs3ZDvXjnGhRCdJOY3b96TdMLSSEKOLf3rSJf0S4m9FXWhwa9GWKdK1QjtIAPRQlYp0u62uB6KL_poelgLR_9Ff8vkA5ObzpGFDdmjKqnQI5Y9PD2tuRcobd84kmAHN62Du-3r5n5k1iPzTlbtelDS-1Cuh7vff7aP9Q32onfGlgT5z-cMGlN5E9ReEbn3CZWqlYMf3mdfGSFB6bah0imjr9hNeaBawFFUSorras5hmO47fS4tqsn6SOQPo8Bz5w7Gqs9LtLYxuqVJwgPZdfSxPmXHAPdWSeQ7UbUUYE22FsMZT4NEgc57owK530raia5yBRb67Pv8tf81pkbubOc7ren2h-nQNT7J9Nrf4pa0JJuZTjvkYbS8aCA_4QfyiIUztkiT-YoliyRlqzjAHnnC0tmchel8lSZhksTxOcDPy9T5LF4uVnG0ZBFjLAmjRYAklTP2bfxzl693_gLYkMr5)
+[![](https://mermaid.ink/img/pako:eNplk9uK2zAURX_loKcpTVI7t3H0MNBmhtDSQvCYTgh5EfJxIsaWPLo0dUOgv9Bf7JdUiu3pQPwk-ayztbcuJ8JVjoQSgy8OJcd7wfaaVTsJ_quZtoKLmkkLGTADGcowXpYCpb1mVoF5kD9UAytm8ciaa2YbmC1q9ff3n0w7Y2GtSl9Ec82mgU2Vs6ivi-s3htZKldfEJhBPSj-H9racDe_uVhSyr4-gQ2K__FHYA9hWx6pn7MiVJ7cUvqMWRQMi94GFbeDmy1P2ofL971psO-wUWwFeMlEZeA_CqJJZoSRoV_bZVi37IAulOUL66ePSoy9OWRZ6DD9gxf6jKYXqrdOb1uXQcFVj3hlIPbim8Iglcgs9USMXheBwvKSH-nV_1h7fULgXpmaW--Cqs4p5B7fcZtjqfpYF6nAxwB9D7Wyv0trrUms0rrS9nzZkiqZW0mAfx__N-o3vK2RA9lrkhBasNDggFeqKhTk5hbYdsX5DcEeoH-ZYsLAI2cmz7_MHvFWqItRq5zu1cvtDP3F17vN0N_lV3KfIUS-Vk5bQ8WRy0SD0RH4SGsfTUTSeJ8lkMluMF9N4PCCNpxbjUZwsplEczW8TD83OA_Lrsmw0miez2SSeLm6jKJ5PkwHBXFilv7Xv6fKszv8Ae1IVeg?type=png)](https://mermaid.live/edit#pako:eNplk9uK2zAURX_loKcpTVI7t3H0MNBmhtDSQvCYTgh5EfJxIsaWPLo0dUOgv9Bf7JdUiu3pQPwk-ayztbcuJ8JVjoQSgy8OJcd7wfaaVTsJ_quZtoKLmkkLGTADGcowXpYCpb1mVoF5kD9UAytm8ciaa2YbmC1q9ff3n0w7Y2GtSl9Ec82mgU2Vs6ivi-s3htZKldfEJhBPSj-H9racDe_uVhSyr4-gQ2K__FHYA9hWx6pn7MiVJ7cUvqMWRQMi94GFbeDmy1P2ofL971psO-wUWwFeMlEZeA_CqJJZoSRoV_bZVi37IAulOUL66ePSoy9OWRZ6DD9gxf6jKYXqrdOb1uXQcFVj3hlIPbim8Iglcgs9USMXheBwvKSH-nV_1h7fULgXpmaW--Cqs4p5B7fcZtjqfpYF6nAxwB9D7Wyv0trrUms0rrS9nzZkiqZW0mAfx__N-o3vK2RA9lrkhBasNDggFeqKhTk5hbYdsX5DcEeoH-ZYsLAI2cmz7_MHvFWqItRq5zu1cvtDP3F17vN0N_lV3KfIUS-Vk5bQ8WRy0SD0RH4SGsfTUTSeJ8lkMluMF9N4PCCNpxbjUZwsplEczW8TD83OA_Lrsmw0miez2SSeLm6jKJ5PkwHBXFilv7Xv6fKszv8Ae1IVeg)
 
-5.1 Client → Ingress
-HTTPS/TLS: Prompts are encrypted in transit; only the endpoint with the private key can decrypt.
+## 4. Security model — how prompts are protected
 
-Protects against eavesdropping and tampering on the public network.
+#### Client → Ingress
+ - HTTPS/TLS: Prompts are encrypted in transit; only the endpoint with the private key can decrypt.
+ - Protects against eavesdropping and tampering on the public network.
 
-5.2 Ingress → Envoy
-TLS passthrough: Ingress forwards encrypted bytes; Envoy is first to decrypt, or
+#### Ingress → Envoy
+ - TLS passthrough: Ingress forwards encrypted bytes; Envoy is first to decrypt, or
+ - TLS termination + re‑encryption: Ingress terminates TLS, validates, then re‑encrypts to Envoy.
 
-TLS termination + re‑encryption: Ingress terminates TLS, validates, then re‑encrypts to Envoy.
+#### Envoy (blast‑radius boundary)
+- Terminates TLS / mTLS.
+- Applies:
+   - Authn (JWT, OAuth, mTLS)
+   - Authz (RBAC)
+   - Rate limiting and request shaping
+   - Protocol and schema validation
+   - Only valid, authenticated, schema‑correct prompts are forwarded.
 
-5.3 Envoy (blast‑radius boundary)
-Terminates TLS / mTLS.
-
-Applies:
-
-Authn (JWT, OAuth, mTLS)
-
-Authz (RBAC)
-
-Rate limiting and request shaping
-
-Protocol and schema validation
-
-Only valid, authenticated, schema‑correct prompts are forwarded.
-
-5.4 Envoy → Router
-mTLS inside the cluster:
-
-Encryption in transit
-
-Mutual authentication between Envoy and Router
-
-Aligns with zero‑trust: never trust the network, always verify identity and intent.
+#### Envoy → Router
+- mTLS inside the cluster:
+- Encryption in transit
+- Mutual authentication between Envoy and Router
+- Aligns with zero‑trust: never trust the network, always verify identity and intent.
