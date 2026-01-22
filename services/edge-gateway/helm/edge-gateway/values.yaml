@@ -1,7 +1,19 @@
+namespace: llm-inference
+
+replicaCount: 2
+
 image:
   repository: envoyproxy/envoy
-  tag: v1.30-latest
+  tag: v1.27.0
+  pullPolicy: IfNotPresent
 
 service:
+  type: ClusterIP
   port: 80
   targetPort: 8080
+
+envoy:
+  configMapName: envoy-config
+  configFile: envoy.yaml
+
+resources: {}

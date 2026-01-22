@@ -1,33 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: edge-gateway
+  name: envoy-gateway
+  namespace: {{ .Values.namespace }}
   labels:
-    app: edge-gateway
+    app: envoy-gateway
 spec:
-  replicas: 2
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: edge-gateway
+      app: envoy-gateway
   template:
     metadata:
       labels:
-        app: edge-gateway
+        app: envoy-gateway
     spec:
       containers:
         - name: envoy
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          args:
-            - "-c"
-            - "/etc/envoy/envoy.yaml"
-            - "--log-level"
-            - "info"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 8080
+            - containerPort: {{ .Values.service.targetPort }}
           volumeMounts:
-            - name: envoy-config
+            - name: config-volume
               mountPath: /etc/envoy
+              readOnly: true
       volumes:
-        - name: envoy-config
+        - name: config-volume
           configMap:
-            name: edge-gateway-envoy-config
+            name: {{ .Values.envoy.configMapName }}

@@ -1,10 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: edge-gateway
+  name: envoy-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: envoy-gateway
 spec:
+  type: {{ .Values.service.type }}
   selector:
-    app: edge-gateway
+    app: envoy-gateway
   ports:
-    - port: 80
-      targetPort: 8080
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
