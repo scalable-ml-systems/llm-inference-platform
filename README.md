@@ -2,17 +2,17 @@
 This is a production-style LLM inference system built on vLLM and designed to handle real load. The focus isn't on model performance—it's on understanding how latency, throughput, and GPU behavior actually work together in practice.
 The system is organized into four layers, each doing one thing. That's it.
 
-### Why this exists
+## Why this exists
 LLM inference systems break in subtle ways. Latency spikes for no clear reason. GPUs look busy but nothing's happening. Routing decisions are a black box. One failure takes down everything else.
 This platform is built to make those problems visible and predictable. Each layer enforces one invariant and contains its own failures.
 
-### How it's structured
+## How it's structured
 
 [diagram placeholder]
 
 Four layers, cleanly separated. Traffic admission doesn't know about routing. Routing doesn't touch GPU execution. Observability ties it all together.
 
-### Tech Stack (by System Responsibility)
+## Tech Stack (by System Responsibility)
 
 <table>
 <tr>
@@ -66,7 +66,7 @@ Four layers, cleanly separated. Traffic admission doesn't know about routing. Ro
 </table>
 
 
-#### Layer 1: Edge Gateway
+### Layer 1: Edge Gateway
 This is the front door. It accepts traffic, validates it, and forwards good requests downstream.
 What it does:
 
@@ -78,7 +78,7 @@ Doesn't know anything about models or GPUs
 
 Why: If you don't control traffic at the edge, every downstream component has to defend itself. That adds latency and couples failures across the system.
 
-#### Layer 2: Router Service
+### Layer 2: Router Service
 This decides where each request should go.
 What it does:
 
@@ -90,7 +90,7 @@ Everything is observable
 
 Why: When routing logic lives inside gateways or inference code, it becomes impossible to test or understand. Pulling it into its own layer means you can change routing without touching GPU execution.
 
-#### Layer 3: Inference Backends
+### Layer 3: Inference Backends
 This runs the models on GPUs and returns results.
 What it does:
 
@@ -102,7 +102,7 @@ Doesn't know or care about routing
 
 Why: GPU execution is expensive and fragile. Isolating it makes performance predictable and cost visible. You can experiment here without risking the control plane.
 
-#### Layer 4: Observability
+### Layer 4: Observability
 This makes the system understandable.
 What it does:
 
@@ -123,7 +123,7 @@ Are the GPUs actually saturated or just stuck?
 Where's the bottleneck—routing, execution, or capacity?
 
 
-#### Design principles
+### Design principles
 
 Each layer does one thing
 Behavior is deterministic, not heuristic
@@ -132,11 +132,11 @@ Observe before optimizing
 Configure, don't rewrite code
 
 
-#### What this is and isn't
+### What this is and isn't
 This is a working system you can run and reason about. It's been tested under sustained load and organized for maintainability.
 This is not a benchmark, a framework comparison, a demo, or a pile of scripts.
 
-#### Where things are
+### Where things are
 
 services/edge-gateway/ — Layer 1
 services/router-service/ — Layer 2
