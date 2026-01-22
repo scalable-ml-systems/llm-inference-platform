@@ -1,138 +1,159 @@
-# LLM Inference Platform - 
+# LLM Inference Platform (vLLM)
+This is a production-style LLM inference system built on vLLM and designed to handle real load. The focus isn't on model performance—it's on understanding how latency, throughput, and GPU behavior actually work together in practice.
+The system is organized into four layers, each doing one thing. That's it.
 
-## UNDER ACTIVE BUILD
+### Why this exists
+LLM inference systems break in subtle ways. Latency spikes for no clear reason. GPUs look busy but nothing's happening. Routing decisions are a black box. One failure takes down everything else.
+This platform is built to make those problems visible and predictable. Each layer enforces one invariant and contains its own failures.
 
-This repository is an applied project that explores production-grade LLM inference infrastructure patterns on AWS EKS, with a focus on performance, cost optimization, observability, and security.
+### How it's structured
 
-STATUS : 
+[diagram placeholder]
 
-Inference Backend Milestone — Artifact Summary
+Four layers, cleanly separated. Traffic admission doesn't know about routing. Routing doesn't touch GPU execution. Observability ties it all together.
 
-Status: COMPLETE & VERIFIED
+### Tech Stack (by System Responsibility)
 
-Two LLMs successfully deployed:
+<table>
+<tr>
+<td width="50%" valign="top">
 
-LLaMA-3.1-8B (AWQ INT4)
+### **Compute**
+- AWS EC2 (GPU + system nodes)
+- NVIDIA GPUs
+- vLLM (GPU‑backed inference)
 
-Mistral-7B Instruct (AWQ)
+### **Networking & Traffic Management**
+- Envoy (Edge Gateway)
+- Kubernetes Services & DNS
+- Internal VPC networking (private subnets)
 
-Infrastructure: AWS EKS with 2 dedicated GPU nodes (g4dn.xlarge)
+### **Storage & State**
+- Redis (session affinity, routing state)
+- GPU VRAM (model weights + KV cache)
+- CPU RAM (prefill / spillover buffers)
 
-Placement:
+### **Models**
+- Mistral‑7B‑Instruct‑v0.2‑AWQ  
+- Llama‑3.2‑8B‑Instruct‑AWQ
 
-1 model per GPU node (no GPU oversubscription)
+</td>
+<td width="50%" valign="top">
 
-Inference Engine: vLLM with TRITON_ATTN
+### **Orchestration & Scheduling**
+- Kubernetes
+- Amazon EKS
+- Helm (application deployment)
 
-API: OpenAI-compatible (/v1/models, /v1/chat/completions)
+### **Control Plane & Routing**
+- Custom Router Service (Python / FastAPI)
+- Deterministic routing rules (YAML)
+- Health‑aware forwarding & bounded retries
 
-Operational State:
+### **Observability & Telemetry**
+- Prometheus (metrics collection)
+- Grafana (dashboards)
+- Loki (structured logs)
+- Tempo (request tracing)
+- DCGM (GPU telemetry)
 
-Models fully loaded
+### **Infrastructure as Code & Ops**
+- Terraform (VPC, EKS, node groups, observability)
+- Shell scripts (cost control, environment lifecycle)
 
-Backends stable (no CrashLoop, no Pending pods)
-
-Ready for live inference traffic
-
-Result:
- Both LLaMA and Mistral are serving inference concurrently on separate GPUs, with deterministic scheduling and production-safe rollout behavior.
-
-
-<img width="800" height="800" alt="vllm-inference-platform-complete" src="https://github.com/user-attachments/assets/110f2d8c-2a21-4977-bc62-0795161ee41d" />
+</td>
+</tr>
+</table>
 
 
-The platform focuses on runtime inference concerns:
-- multi-model serving
-- intelligent request routing
-- GPU-efficient batching and concurrency
-- AI-specific observability (latency, tokens/sec, GPU utilization)
-- cost-per-token visibility
-- evaluation and safety guardrails
+#### Layer 1: Edge Gateway
+This is the front door. It accepts traffic, validates it, and forwards good requests downstream.
+What it does:
 
-This system intentionally does NOT cover model training or large-scale fine-tuning.
-The goal is to model how LLMs are actually operated in production environments.
+Checks that requests are well-formed
+Rejects bad traffic immediately
+Scales horizontally
+Doesn't make routing decisions
+Doesn't know anything about models or GPUs
 
-Initial deployment targets AWS EKS with GPU-backed nodes.
+Why: If you don't control traffic at the edge, every downstream component has to defend itself. That adds latency and couples failures across the system.
 
-## ACTIVE BUILD : 
+#### Layer 2: Router Service
+This decides where each request should go.
+What it does:
 
-Repo Structure
+Looks at request metadata, backend health, and policy
+Makes a routing decision and logs it
+Handles retries with clear limits
+Supports session affinity if needed
+Everything is observable
 
-```
+Why: When routing logic lives inside gateways or inference code, it becomes impossible to test or understand. Pulling it into its own layer means you can change routing without touching GPU execution.
 
-llm-inference-platform/
-├── services/          # Application code
-│   ├── router/        # Request routing service (FastAPI)
-│   └── vllm/          # vLLM metrics and configuration
-├── infra/             # Infrastructure-as-code
-│   ├── terraform/     # AWS infrastructure (EKS, VPC, IAM, etc.)
-│   └── kubernetes/    # K8s manifests and Helm values
-├── tests/             # Testing framework (WIP)
-├── benchmarks/        # Performance benchmarks (WIP)
-├── docs/              # Architecture and setup documentation
-└── scripts/           # Deployment automation
-```
+#### Layer 3: Inference Backends
+This runs the models on GPUs and returns results.
+What it does:
 
-## Quick Start
+Executes inference
+Stays GPU-saturated
+Warms up to avoid cold starts
+Reports per-request latency and health
+Doesn't know or care about routing
 
-> ⚠️ **Note:** This is under active development. Deployment steps are being validated.
+Why: GPU execution is expensive and fragile. Isolating it makes performance predictable and cost visible. You can experiment here without risking the control plane.
 
-### Prerequisites
-- AWS account with appropriate permissions
-- `terraform` >= 1.0
-- `kubectl` configured for EKS
-- `helm` >= 3.0
+#### Layer 4: Observability
+This makes the system understandable.
+What it does:
 
-See [docs/setup/setup.md](docs/setup/setup.md) for detailed instructions.
+Tracks latency, throughput, and GPU utilization
+Correlates signals across all layers
+Produces structured logs
+Alerts on things you can act on
 
-## Technical Highlights
+Why: Without observability, you're guessing. You can't explain latency, plan capacity, or debug failures. This layer closes the loop between what the system does and why it does it.
 
-**Infrastructure-as-Code:**
-- Modular Terraform for AWS (VPC, EKS, IAM, storage, security)
-- Separate environments (dev/staging/prod)
-- GitOps-ready Kubernetes manifests
+What happens under load
+Traffic hits the edge gateway, which validates and forwards it. The router decides where it should go and logs that decision. Inference backends execute on GPUs. Observability captures how everything interacts.
+You can answer real questions:
 
-**Router Design:**
-- FastAPI service with Prometheus metrics
-- Context affinity via Redis (planned)
-- Pluggable routing logic (currently heuristic-based)
+Why did time-to-first-token increase?
+Which backend handled this request and why?
+Are the GPUs actually saturated or just stuck?
+Where's the bottleneck—routing, execution, or capacity?
 
-**Observability:**
-- Prometheus + Grafana stack
-- DCGM for GPU metrics
-- Loki for log aggregation
-- Custom dashboards for inference metrics
 
-## Important Disclaimers 
+#### Design principles
 
-⚠️ **This repository documents an evolving design, not a finished system**
-- Security hardening incomplete (no auth/authz yet)
-- Testing coverage minimal
-- Performance not yet validated at scale
-- Configurations may change frequently
+Each layer does one thing
+Behavior is deterministic, not heuristic
+Failures are bounded, not silent
+Observe before optimizing
+Configure, don't rewrite code
 
-⚠️ **Current Limitations:**
-- Single-region deployment only
-- Basic routing heuristics (semantic classifier is stub)
-- No multi-tenancy support
-- Minimal error handling
-- Cost tracking not fully implemented
 
-⚠️ **Building in Public:**
-- You'll see experiments and iterations
-- Expect TODO comments and rough edges
-- Architecture decisions may change based on learnings
+#### What this is and isn't
+This is a working system you can run and reason about. It's been tested under sustained load and organized for maintainability.
+This is not a benchmark, a framework comparison, a demo, or a pile of scripts.
 
-- Issues/questions are welcome
-- Suggestions appreciated
-- Feel free to fork and adapt for your use case
+#### Where things are
 
-## Resources & References
+services/edge-gateway/ — Layer 1
+services/router-service/ — Layer 2
+services/inference-backend/ — Layer 3
+services/observability/ — Layer 4
+infrastructure/ — Terraform and cluster setup
+load-testing/ — Load generation
+docs/ — Architecture details
+
+Each layer has its own README explaining the internal design.
+
+### Resources & References
 - [vLLM Documentation](https://docs.vllm.ai/)
 - [AWS EKS Best Practices](https://aws.github.io/aws-eks-best-practices/)
-- [Designing ML Systems (Chip Huyen)](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
 
-## License
+
+### License
 Apache 2.0 - See [LICENSE](LICENSE)
 
 ---

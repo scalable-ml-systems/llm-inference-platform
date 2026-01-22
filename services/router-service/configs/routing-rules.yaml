@@ -1,18 +1,19 @@
 default_backend: backend-a
 fallback_backend: backend-b
+match_policy: first_match
 
 rules:
-  - name: "high_max_tokens_go_stronger"
+  - name: high_max_tokens_go_stronger
     when:
       max_tokens_gte: 800
     route_to: backend-b
 
-  - name: "long_prompt_go_stronger"
+  - name: long_prompt_go_stronger
     when:
       prompt_chars_gte: 8000
     route_to: backend-b
 
-  - name: "code_or_math_hint_go_stronger"
+  - name: code_or_math_hint_go_stronger
     when:
-      any_keywords: ["code", "python", "java", "c++", "math", "proof", "derivation"]
+      any_keywords: ["python", "java", "c++", "math", "proof", "derivation", "stack trace", "exception"]
     route_to: backend-b
