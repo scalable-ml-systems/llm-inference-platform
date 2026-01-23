@@ -114,7 +114,14 @@ Doesn't know or care about routing
 
 Why: GPU execution is expensive and fragile. Isolating it makes performance predictable and cost visible. You can experiment here without risking the control plane.
 
-#### Architecture:
+#### Architecture: 
+
+
+<img width="1024" height="1536" alt="Inference-Backend-layer-3" src="https://github.com/user-attachments/assets/1ec3878c-f1ec-42a0-a5b7-66f7bdb04057" />
+
+
+<img width="1024" height="1536" alt="Inference-Backend-layer-3" src="https://github.com/user-attachments/assets/f4cd19c5-bf16-4bc4-ace0-7dc8ee6046c7" />
+
 
 ### Layer 4: Observability
 This makes the system understandable.
