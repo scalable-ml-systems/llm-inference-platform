@@ -1,10 +1,11 @@
-# LLM Inference Platform (vLLM)
-This is a production-style LLM inference system built on vLLM and designed to handle real load. The focus isn't on model performance—it's on understanding how latency, throughput, and GPU behavior actually work together in practice.
-The system is organized into four layers, each doing one thing. That's it.
+# Distributed LLM Inference Platform (vLLM) on AWS EKS
+
+This is a production‑style LLM inference platform built on vLLM and deployed on AWS/EKS. It’s designed to run under real load, where latency, throughput, and GPU behavior actually matter. The goal isn’t to show off model performance—it’s to understand how an LLM system behaves end‑to‑end when it’s doing real work.
 
 ## Why this exists
-LLM inference systems break in subtle ways. Latency spikes for no clear reason. GPUs look busy but nothing's happening. Routing decisions are a black box. One failure takes down everything else.
-This platform is built to make those problems visible and predictable. Each layer enforces one invariant and contains its own failures.
+LLM inference systems fail in ways that are hard to see. Latency jumps without warning. GPUs report high utilization but produce no work. Routing logic becomes opaque under load. A single backend issue can cascade through the entire stack.
+
+This platform exists to make those behaviors visible, explainable, and contained. It’s a layered system where each layer owns one invariant, isolates its own failures, and exposes the signals you need to understand how the system is actually behaving in production.
 
 ## How it's structured
 
