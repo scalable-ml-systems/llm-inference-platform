@@ -82,7 +82,7 @@ Why: If you don't control traffic at the edge, every downstream component has to
 
 #### Architecture: 
 
-<img width="3030" height="2506" alt="layer-1 mermaid-code" src="https://github.com/user-attachments/assets/72f21a5b-235f-497b-b659-b3230afb41a0" />
+<img width="8192" height="3594" alt="envoy-good-diagram" src="https://github.com/user-attachments/assets/e1d4b423-885f-4ae6-a167-838c2c2a35e3" />
 
 
 ### Layer 2: Router Service
@@ -99,7 +99,8 @@ Why: When routing logic lives inside gateways or inference code, it becomes impo
 
 #### Architecture:
 
-<img width="8192" height="3594" alt="envoy-good-diagram" src="https://github.com/user-attachments/assets/e1d4b423-885f-4ae6-a167-838c2c2a35e3" />
+<img width="3558" height="735" alt="router" src="https://github.com/user-attachments/assets/4daed829-a224-4769-aa98-031548cd75a5" />
+
 
 ### Layer 3: Inference Backends
 This runs the models on GPUs and returns results.
@@ -112,6 +113,8 @@ Reports per-request latency and health
 Doesn't know or care about routing
 
 Why: GPU execution is expensive and fragile. Isolating it makes performance predictable and cost visible. You can experiment here without risking the control plane.
+
+#### Architecture:
 
 ### Layer 4: Observability
 This makes the system understandable.
@@ -132,6 +135,18 @@ Why did time-to-first-token increase?
 Which backend handled this request and why?
 Are the GPUs actually saturated or just stuck?
 Where's the bottleneck—routing, execution, or capacity?
+
+
+<img width="2048" height="1074" alt="End-to-End LLM Inference Under Sustained Load-1" src="https://github.com/user-attachments/assets/51967c76-ec95-4a8d-bfbd-a3e7fe1683b6" />
+
+
+
+<img width="1299" height="1044" alt="dcgm-metrics" src="https://github.com/user-attachments/assets/814f2ac6-abfd-4510-98cb-3d00118ece57" />
+
+
+
+<img width="1291" height="1030" alt="prefill-decode" src="https://github.com/user-attachments/assets/148b0788-9c71-45c9-8eb9-5cee4ae499a9" />
+
 
 
 ### Design principles
