@@ -138,13 +138,13 @@ This is not a benchmark, a framework comparison, a demo, or a pile of scripts.
 
 ### Where things are
 
-services/edge-gateway/ — Layer 1
-services/router-service/ — Layer 2
-services/inference-backend/ — Layer 3
-services/observability/ — Layer 4
-infrastructure/ — Terraform and cluster setup
-load-testing/ — Load generation
-docs/ — Architecture details
+- services/edge-gateway/ — Layer 1
+- services/router-service/ — Layer 2
+- services/inference-backend/ — Layer 3
+- services/observability/ — Layer 4
+- infrastructure/ — Terraform and cluster setup
+- load-testing/ — Load generation
+- docs/ — Architecture details
 
 Each layer has its own README explaining the internal design.
 
