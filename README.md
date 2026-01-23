@@ -117,10 +117,10 @@ Why: GPU execution is expensive and fragile. Isolating it makes performance pred
 #### Architecture: 
 
 
-<img width="1024" height="1536" alt="Inference-Backend-layer-3" src="https://github.com/user-attachments/assets/1ec3878c-f1ec-42a0-a5b7-66f7bdb04057" />
+<img width="2665" height="2065" alt="Inference-backend-layer3" src="https://github.com/user-attachments/assets/f26eed46-eaac-43e8-8554-500dfca176e3" />
 
 
-<img width="1024" height="1536" alt="Inference-Backend-layer-3" src="https://github.com/user-attachments/assets/f4cd19c5-bf16-4bc4-ace0-7dc8ee6046c7" />
+<img width="800" height="800" alt="Inference-Backend-layer-3" src="https://github.com/user-attachments/assets/f4cd19c5-bf16-4bc4-ace0-7dc8ee6046c7" />
 
 
 ### Layer 4: Observability
