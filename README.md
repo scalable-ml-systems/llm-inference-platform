@@ -8,7 +8,9 @@ This platform is built to make those problems visible and predictable. Each laye
 
 ## How it's structured
 
-[diagram placeholder]
+
+<img width="6090" height="5067" alt="vllm-architecture-final" src="https://github.com/user-attachments/assets/8af127cd-68f1-4f3e-a3ff-5edc83357119" />
+
 
 Four layers, cleanly separated. Traffic admission doesn't know about routing. Routing doesn't touch GPU execution. Observability ties it all together.
 
@@ -78,6 +80,11 @@ Doesn't know anything about models or GPUs
 
 Why: If you don't control traffic at the edge, every downstream component has to defend itself. That adds latency and couples failures across the system.
 
+#### Architecture: 
+
+<img width="3030" height="2506" alt="layer-1 mermaid-code" src="https://github.com/user-attachments/assets/72f21a5b-235f-497b-b659-b3230afb41a0" />
+
+
 ### Layer 2: Router Service
 This decides where each request should go.
 What it does:
@@ -89,6 +96,10 @@ Supports session affinity if needed
 Everything is observable
 
 Why: When routing logic lives inside gateways or inference code, it becomes impossible to test or understand. Pulling it into its own layer means you can change routing without touching GPU execution.
+
+#### Architecture:
+
+<img width="8192" height="3594" alt="envoy-good-diagram" src="https://github.com/user-attachments/assets/e1d4b423-885f-4ae6-a167-838c2c2a35e3" />
 
 ### Layer 3: Inference Backends
 This runs the models on GPUs and returns results.
