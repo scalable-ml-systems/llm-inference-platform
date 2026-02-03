@@ -3,9 +3,6 @@
 This is a production‑style LLM inference platform built on vLLM and deployed on AWS/EKS. It’s designed to run under real load, where latency, throughput, and GPU behavior actually matter. The goal isn’t to show off model performance—it’s to understand how an LLM system behaves end‑to‑end when it’s doing real work.
 
 
-<img width="800" height="800" alt="vllm-inference-platform-complete" src="https://github.com/user-attachments/assets/84689c91-c4f8-4c70-a238-ff2332c58125" />
-
-
 ## Why this exists
 LLM inference systems fail in ways that are hard to see. Latency jumps without warning. GPUs report high utilization but produce no work. Routing logic becomes opaque under load. A single backend issue can cascade through the entire stack.
 
