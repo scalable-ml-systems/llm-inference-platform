@@ -11,7 +11,10 @@ This platform exists to make those behaviors visible, explainable, and contained
 ## How it's structured
 
 
-<img width="6090" height="5067" alt="vllm-architecture-final" src="https://github.com/user-attachments/assets/8af127cd-68f1-4f3e-a3ff-5edc83357119" />
+<p align="center"><strong>vLLM Inference Architecture</strong></p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8af127cd-68f1-4f3e-a3ff-5edc83357119" width="90%">
+</p>
 
 
 Four layers, cleanly separated. Traffic admission doesn't know about routing. Routing doesn't touch GPU execution. Observability ties it all together.
@@ -122,56 +125,59 @@ Why: GPU execution is expensive and fragile. Isolating it makes performance pred
 <img width="5780" height="1427" alt="inference-backend-layer-3-final" src="https://github.com/user-attachments/assets/dc04053f-139a-4285-a080-c6730fd5e47a" />
 
 
-
-
-<img width="800" height="800" alt="Inference-Backend-layer-3" src="https://github.com/user-attachments/assets/f4cd19c5-bf16-4bc4-ace0-7dc8ee6046c7" />
-
-
 ### Layer 4: Observability
 This makes the system understandable.
-What it does:
 
-Tracks latency, throughput, and GPU utilization
-Correlates signals across all layers
-Produces structured logs
-Alerts on things you can act on
+#### What it does:
+- Tracks latency, throughput, and GPU utilization
+- Correlates signals across all layers
+- Produces structured logs
+- Alerts on things you can act on
 
 Why: Without observability, you're guessing. You can't explain latency, plan capacity, or debug failures. This layer closes the loop between what the system does and why it does it.
 
-What happens under load
+What happens under load : 
+
 Traffic hits the edge gateway, which validates and forwards it. The router decides where it should go and logs that decision. Inference backends execute on GPUs. Observability captures how everything interacts.
+
 You can answer real questions:
+- Why did time-to-first-token increase?
+- Which backend handled this request and why?
+- Are the GPUs actually saturated or just stuck?
+- Where's the bottleneck—routing, execution, or capacity?
 
-Why did time-to-first-token increase?
-Which backend handled this request and why?
-Are the GPUs actually saturated or just stuck?
-Where's the bottleneck—routing, execution, or capacity?
+<p align="center"><strong>End-to-End LLM Inference Under Sustained Load</strong></p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/51967c76-ec95-4a8d-bfbd-a3e7fe1683b6" width="70%">
+</p>
 
+<p align="center"><strong>DCGM GPU Metrics</strong></p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/814f2ac6-abfd-4510-98cb-3d00118ece57" width="60%">
+</p>
 
-<img width="2048" height="1074" alt="End-to-End LLM Inference Under Sustained Load-1" src="https://github.com/user-attachments/assets/51967c76-ec95-4a8d-bfbd-a3e7fe1683b6" />
-
-
-
-<img width="1299" height="1044" alt="dcgm-metrics" src="https://github.com/user-attachments/assets/814f2ac6-abfd-4510-98cb-3d00118ece57" />
-
-
-
-<img width="1291" height="1030" alt="prefill-decode" src="https://github.com/user-attachments/assets/148b0788-9c71-45c9-8eb9-5cee4ae499a9" />
+<p align="center"><strong>Prefill vs Decode Behavior</strong></p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/148b0788-9c71-45c9-8eb9-5cee4ae499a9" width="60%">
+</p>
 
 
 
 ### Design principles
+ - Each layer owns a single responsibility
+ - System behavior is deterministic, not heuristic
+ - Failures are contained and never silent
+ - Observe before optimizing
+ - Configure the system — don’t rewrite it
 
-Each layer does one thing
-Behavior is deterministic, not heuristic
-Failures are bounded, not silent
-Observe before optimizing
-Configure, don't rewrite code
+### What this is (and isn’t)
+This is a working system you can run, inspect, and reason about. 
 
+It’s been tested under sustained load and structured for long‑term maintainability.
 
-### What this is and isn't
-This is a working system you can run and reason about. It's been tested under sustained load and organized for maintainability.
-This is not a benchmark, a framework comparison, a demo, or a pile of scripts.
+This is not a benchmark, a framework comparison, a demo, or a pile of scripts. 
+
+It’s an actual platform built to expose the real engineering challenges of LLM inference.
 
 ### Where things are
 
